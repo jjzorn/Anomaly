@@ -1,12 +1,23 @@
 // Copyright 2023 Justus Zorn
 
+#include <Common/Network.h>
+
 #include <SDL.h>
 
-#include <iostream>
-
 int SDL_main(int argc, char* argv[]) {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		std::cerr << "SDL initialization failed\n";
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "netlib init: %d\n", netlib_init());
+
+	ip_address addr;
+
+	Socket socket;
+	if (socket.connect("localhost", 17899)) {
+		socket.send("hello!", 6);
+	}
+
+	return 0;
+
+	/*if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL");
 		return 1;
 	}
 	SDL_Window* window = SDL_CreateWindow("My window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
@@ -22,5 +33,6 @@ int SDL_main(int argc, char* argv[]) {
 		}
 	}
 	SDL_DestroyWindow(window);
-	return 0;
+	SDL_Quit();
+	return 0;*/
 }
