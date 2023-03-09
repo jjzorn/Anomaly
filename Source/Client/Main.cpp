@@ -1,17 +1,25 @@
 // Copyright 2023 Justus Zorn
 
+#include <Client/Renderer.h>
+
 #include <Common/Network.h>
 
-#include <SDL.h>
+#include <iostream>
 
 int SDL_main(int argc, char* argv[]) {
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "netlib init: %d\n", netlib_init());
+	/*Renderer renderer;
 
-	ip_address addr;
+	while (renderer.update()) {
+		renderer.present();
+	}
+	*/
 
 	Socket socket;
 	if (socket.connect("localhost", 17899)) {
-		socket.send("hello!", 6);
+		std::vector<uint8_t> data;
+		if (socket.recv_vec(data)) {
+			std::cout << std::string(reinterpret_cast<const char*>(data.data()), data.size());
+		}
 	}
 
 	return 0;

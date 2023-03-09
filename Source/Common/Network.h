@@ -1,11 +1,12 @@
 // Copyright 2023 Justus Zorn
 
-#ifndef ANOMALY_SOCKET_H
-#define ANOMALY_SOCKET_H
+#ifndef ANOMALY_COMMON_NETWORK_H
+#define ANOMALY_COMMON_NETWORK_H
 
 #include <netlib.h>
 
 #include <string>
+#include <vector>
 
 class Socket {
 public:
@@ -17,11 +18,16 @@ public:
 
 	bool connect(const std::string& host, uint16_t port);
 
-	int send(const char* buffer, int len);
-	int recv(char* buffer, int maxlen);
+	bool send_uint32(uint32_t i);
+	bool recv_uint32(uint32_t& i);
+
+	bool send_vec(const std::vector<uint8_t>& vec);
+	bool recv_vec(std::vector<uint8_t>& vec);
 
 private:
 	tcp_socket socket = nullptr;
+
+	bool recv(uint8_t* buffer, int len);
 
 	friend class ServerSocket;
 };
