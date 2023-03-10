@@ -29,11 +29,10 @@ int main(int argc, char* argv[]) {
 	Socket client;
 	while (true) {
 		if (socket.accept(client)) {
-			// try sending a file
-			std::string content = read_file("test.txt");
-			uint8_t* ptr = reinterpret_cast<uint8_t*>(&content[0]);
-			std::vector<uint8_t> data(ptr, ptr + content.size());
-			client.send_vec(data);
+			uint32_t num;
+			if (client.recv_uint32(num)) {
+				std::cout << "Client sent number " << num << '\n';
+			}
 		}
 	}
 }

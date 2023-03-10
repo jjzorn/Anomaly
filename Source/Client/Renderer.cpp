@@ -35,6 +35,11 @@ bool Renderer::update() {
 	return true;
 }
 
+void Renderer::clear(uint8_t r, uint8_t g, uint8_t b) {
+	SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+	SDL_RenderClear(renderer);
+}
+
 void Renderer::present() {
 	SDL_RenderPresent(renderer);
 }

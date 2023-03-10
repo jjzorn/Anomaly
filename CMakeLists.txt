@@ -6,6 +6,7 @@ project("Anomaly")
 
 add_subdirectory("3rdParty/SDL")
 add_subdirectory("3rdParty/netlib")
+add_subdirectory("3rdParty/stb")
 
 set(CLIENT_SOURCE_FILES
 	"Source/Client/Main.cpp"
@@ -21,7 +22,7 @@ set(COMMON_SOURCE_FILES
 )
 
 add_executable("Anomaly" ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "netlib" )
+target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "netlib" "stb")
 target_include_directories("Anomaly" PRIVATE "Source")
 
 add_executable("AnomalyServer" ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})

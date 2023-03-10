@@ -74,6 +74,7 @@ bool Socket::recv_vec(std::vector<uint8_t>& vec) {
 	if (!recv(vec.data(), len)) {
 		return false;
 	}
+	return true;
 }
 
 bool Socket::recv(uint8_t* buffer, int len) {

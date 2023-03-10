@@ -14,12 +14,17 @@ int SDL_main(int argc, char* argv[]) {
 	}
 	*/
 
+	Renderer renderer;
 	Socket socket;
-	if (socket.connect("localhost", 17899)) {
-		std::vector<uint8_t> data;
-		if (socket.recv_vec(data)) {
-			std::cout << std::string(reinterpret_cast<const char*>(data.data()), data.size());
-		}
+	if (!socket.connect("localhost", 17899)) {
+		return 1;
+	}
+
+	socket.send_uint32(93);
+
+	while (renderer.update()) {
+		renderer.clear(255, 0, 0);
+		renderer.present();
 	}
 
 	return 0;
