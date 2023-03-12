@@ -18,7 +18,10 @@ int SDL_main(int argc, char* argv[]) {
 
 	Socket socket;
 	if (socket.connect("192.168.178.29", 17899)) {
-		socket.send_uint32(93);
+		socket.send_uint32(17);
+	}
+	else {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not connect to server");
 	}
 
 	while (renderer.update()) {
