@@ -9,14 +9,13 @@ Socket::Socket() {
 }
 
 Socket::~Socket() {
-	netlib_tcp_close(socket);
+	disconnect();
 	netlib_quit();
 }
 
 bool Socket::connect(const std::string& host, uint16_t port) {
 	if (socket) {
-		netlib_tcp_close(socket);
-		socket = nullptr;
+		disconnect();
 	}
 	ip_address addr;
 	if (netlib_resolve_host(&addr, host.c_str(), port)) {
@@ -29,12 +28,17 @@ bool Socket::connect(const std::string& host, uint16_t port) {
 	return true;
 }
 
+void Socket::disconnect() {
+	netlib_tcp_close(socket);
+	socket = nullptr;
+}
+
 bool Socket::send_uint32(uint32_t i) {
 	uint8_t buf[4] = {
-		(i & 0xFF000000) >> 24,
-		(i & 0x00FF0000) >> 16,
-		(i & 0x0000FF00) >> 8,
-		(i & 0x000000FF)
+		static_cast<uint8_t>((i & 0xFF000000) >> 24),
+		static_cast<uint8_t>((i & 0x00FF0000) >> 16),
+		static_cast<uint8_t>((i & 0x0000FF00) >> 8),
+		static_cast<uint8_t>((i & 0x000000FF))
 	};
 	if (netlib_tcp_send(socket, buf, 4) < 4) {
 		return false;

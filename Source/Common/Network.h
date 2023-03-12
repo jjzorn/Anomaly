@@ -17,6 +17,7 @@ public:
 	Socket& operator=(const Socket&) = delete;
 
 	bool connect(const std::string& host, uint16_t port);
+	void disconnect();
 
 	bool send_uint32(uint32_t i);
 	bool recv_uint32(uint32_t& i);

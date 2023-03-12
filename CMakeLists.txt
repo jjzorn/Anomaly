@@ -1,6 +1,6 @@
 # Copyright 2023 Justus Zorn
 
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 
 project("Anomaly")
 
@@ -21,6 +21,11 @@ set(COMMON_SOURCE_FILES
 	"Source/Common/Network.cpp"
 )
 
+if (ANDROID)
+add_library("main" SHARED ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+target_link_libraries("main" "SDL2" "netlib" "stb")
+target_include_directories("main" PRIVATE "Source")
+else()
 add_executable("Anomaly" ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "netlib" "stb")
 target_include_directories("Anomaly" PRIVATE "Source")
@@ -28,3 +33,4 @@ target_include_directories("Anomaly" PRIVATE "Source")
 add_executable("AnomalyServer" ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries("AnomalyServer" "netlib")
 target_include_directories("AnomalyServer" PRIVATE "Source")
+endif()

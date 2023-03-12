@@ -15,15 +15,14 @@ int SDL_main(int argc, char* argv[]) {
 	*/
 
 	Renderer renderer;
+
 	Socket socket;
-	if (!socket.connect("localhost", 17899)) {
-		return 1;
+	if (socket.connect("192.168.178.29", 17899)) {
+		socket.send_uint32(93);
 	}
 
-	socket.send_uint32(93);
-
 	while (renderer.update()) {
-		renderer.clear(255, 0, 0);
+		renderer.clear(0, 255, 0);
 		renderer.present();
 	}
 
