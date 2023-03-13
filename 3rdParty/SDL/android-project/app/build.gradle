@@ -11,7 +11,7 @@ android {
     compileSdkVersion 31
     defaultConfig {
         if (buildAsApplication) {
-            applicationId "com.github.justus_zorn.anomaly"
+            applicationId "io.github.jjzorn.anomaly"
         }
         minSdkVersion 16
         targetSdkVersion 31
