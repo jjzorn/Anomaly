@@ -1,38 +1,26 @@
 // Copyright 2023 Justus Zorn
 
-#include <Common/Network.h>
-
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
-static std::string read_file(const std::string& path) {
-	std::ifstream input(path, std::ios::binary);
-	if (!input.is_open()) {
-		std::cerr << "ERROR: Could not read file '" << path << "'\n";
-		return "";
-	}
-	std::string content;
-	std::string line;
-	while (input.good()) {
-		std::getline(input, line);
-		content += line;
-		content += '\n';
-	}
-	return content;
-}
+#include <Common/Network.h>
+
+#include <Server/ContentManager.h>
 
 int main(int argc, char* argv[]) {
 	ServerSocket socket;
 	socket.listen(17899);
 
-	Socket client;
+	ContentManager content;
+
 	while (true) {
+		Socket client;
 		if (socket.accept(client)) {
-			uint32_t num;
-			if (client.recv_uint32(num)) {
-				std::cout << "Client sent number " << num << '\n';
-			}
+			content.reload(client);
 		}
 	}
 }

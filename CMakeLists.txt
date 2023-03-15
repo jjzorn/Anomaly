@@ -14,6 +14,7 @@ set(CLIENT_SOURCE_FILES
 )
 
 set(SERVER_SOURCE_FILES
+	"Source/Server/ContentManager.cpp"
 	"Source/Server/Main.cpp"
 )
 
@@ -25,6 +26,7 @@ if (ANDROID)
 add_library("main" SHARED ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries("main" "SDL2" "netlib" "stb")
 target_include_directories("main" PRIVATE "Source")
+target_compile_definitions("main" PRIVATE "ANOMALY_MOBILE")
 else()
 if (WIN32)
 add_executable("Anomaly" ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES} "Content/appicon.rc")
@@ -38,4 +40,5 @@ target_include_directories("Anomaly" PRIVATE "Source")
 
 target_link_libraries("AnomalyServer" "netlib")
 target_include_directories("AnomalyServer" PRIVATE "Source")
+target_compile_features("AnomalyServer" PRIVATE cxx_std_17)
 endif()

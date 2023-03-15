@@ -1,8 +1,8 @@
 // Copyright 2023 Justus Zorn
 
-#include <Common/Network.h>
-
 #include <iostream>
+
+#include <Common/Network.h>
 
 Socket::Socket() {
 	netlib_init();

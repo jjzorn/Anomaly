@@ -3,10 +3,15 @@
 #ifndef ANOMALY_COMMON_NETWORK_H
 #define ANOMALY_COMMON_NETWORK_H
 
-#include <netlib.h>
-
 #include <string>
 #include <vector>
+
+#include <netlib.h>
+
+enum class MessageType {
+	SERVER_CLOSED,
+	SERVER_CONTENT_UPDATE_IMAGE
+};
 
 class Socket {
 public:

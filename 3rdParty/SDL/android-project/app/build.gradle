@@ -8,13 +8,13 @@ else {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         if (buildAsApplication) {
             applicationId "io.github.jjzorn.anomaly"
         }
-        minSdkVersion 16
-        targetSdkVersion 31
+        minSdkVersion 27
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
