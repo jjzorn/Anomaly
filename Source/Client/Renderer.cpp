@@ -50,7 +50,7 @@ void Renderer::present() {
 	SDL_RenderPresent(renderer);
 }
 
-void Renderer::load_image(uint32_t id, const std::vector<uint8_t>& data) {
+void Renderer::load_image(uint32_t id, const uint8_t* data, uint32_t length) {
 	if (textures.size() <= id) {
 		textures.resize(id + 1);
 	}
@@ -59,9 +59,9 @@ void Renderer::load_image(uint32_t id, const std::vector<uint8_t>& data) {
 		textures[id] = nullptr;
 	}
 	int width, height;
-	uint8_t* image_data = stbi_load_from_memory(data.data(), data.size(), &width, &height, nullptr, 4);
+	uint8_t* image_data = stbi_load_from_memory(data, length, &width, &height, nullptr, 4);
 	if (image_data == nullptr) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not load image");
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not load image (ID %u)", id);
 		return;
 	}
 	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(image_data, width, height, 32, width * 4, SDL_PIXELFORMAT_RGBA32);
@@ -72,6 +72,9 @@ void Renderer::load_image(uint32_t id, const std::vector<uint8_t>& data) {
 }
 
 void Renderer::draw_sprite(uint32_t sprite, uint16_t x, uint16_t y) {
+	if (sprite >= textures.size()) {
+		return;
+	}
 	int width, height;
 	SDL_QueryTexture(textures[sprite], nullptr, nullptr, &width, &height);
 	SDL_Rect src;

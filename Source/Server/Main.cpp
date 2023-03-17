@@ -1,26 +1,23 @@
 // Copyright 2023 Justus Zorn
 
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include <Common/Network.h>
 
 #include <Server/ContentManager.h>
+#include <Server/Server.h>
 
 int main(int argc, char* argv[]) {
-	ServerSocket socket;
-	socket.listen(17899);
+	if (enet_initialize() < 0) {
+		std::cerr << "ERROR: Could not initialize ENet\n";
+		return 1;
+	}
 
 	ContentManager content;
+	Server server(17899);
+	content.reload(server);
 
 	while (true) {
-		Socket client;
-		if (socket.accept(client)) {
-			content.reload(client);
-		}
+		server.update(content);
 	}
+
+	enet_deinitialize();
 }

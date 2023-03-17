@@ -7,11 +7,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Common/Network.h>
+#include <Server/Server.h>
 
 class ContentManager {
 public:
-	void reload(Socket& client);
+	void reload(Server& server);
+	void init_client(Server& server, uint16_t client);
 
 private:
 	struct Image {

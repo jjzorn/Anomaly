@@ -4,11 +4,14 @@ cmake_minimum_required(VERSION 3.22)
 
 project("Anomaly")
 
+set(ENET_STATIC ON)
+
 add_subdirectory("3rdParty/SDL")
-add_subdirectory("3rdParty/netlib")
+add_subdirectory("3rdParty/enet")
 add_subdirectory("3rdParty/stb")
 
 set(CLIENT_SOURCE_FILES
+	"Source/Client/Client.cpp"
 	"Source/Client/Main.cpp"
 	"Source/Client/Renderer.cpp"
 )
@@ -16,29 +19,26 @@ set(CLIENT_SOURCE_FILES
 set(SERVER_SOURCE_FILES
 	"Source/Server/ContentManager.cpp"
 	"Source/Server/Main.cpp"
-)
-
-set(COMMON_SOURCE_FILES
-	"Source/Common/Network.cpp"
+	"Source/Server/Server.cpp"
 )
 
 if (ANDROID)
-add_library("main" SHARED ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-target_link_libraries("main" "SDL2" "netlib" "stb")
+add_library("main" SHARED ${CLIENT_SOURCE_FILES})
+target_link_libraries("main" "SDL2" "enet_static" "stb")
 target_include_directories("main" PRIVATE "Source")
 target_compile_definitions("main" PRIVATE "ANOMALY_MOBILE")
 else()
 if (WIN32)
-add_executable("Anomaly" ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES} "Content/appicon.rc")
-add_executable("AnomalyServer" ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES} "Content/appicon.rc")
+add_executable("Anomaly" ${CLIENT_SOURCE_FILES} "Content/appicon.rc")
+add_executable("AnomalyServer" ${SERVER_SOURCE_FILES} "Content/appicon.rc")
 else()
-add_executable("Anomaly" ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-add_executable("AnomalyServer" ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable("Anomaly" ${CLIENT_SOURCE_FILES})
+add_executable("AnomalyServer" ${SERVER_SOURCE_FILES})
 endif()
-target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "netlib" "stb")
+target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "enet_static" "stb")
 target_include_directories("Anomaly" PRIVATE "Source")
 
-target_link_libraries("AnomalyServer" "netlib")
+target_link_libraries("AnomalyServer" "enet_static")
 target_include_directories("AnomalyServer" PRIVATE "Source")
 target_compile_features("AnomalyServer" PRIVATE cxx_std_17)
 endif()
