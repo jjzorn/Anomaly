@@ -50,7 +50,7 @@ void Renderer::present() {
 	SDL_RenderPresent(renderer);
 }
 
-void Renderer::load_image(uint32_t id, const uint8_t* data, uint32_t length) {
+void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
 	if (textures.size() <= id) {
 		textures.resize(id + 1);
 	}
@@ -71,8 +71,8 @@ void Renderer::load_image(uint32_t id, const uint8_t* data, uint32_t length) {
 	stbi_image_free(image_data);
 }
 
-void Renderer::draw_sprite(uint32_t sprite, uint16_t x, uint16_t y) {
-	if (sprite >= textures.size()) {
+void Renderer::draw_sprite(uint16_t sprite, uint16_t x, uint16_t y) {
+	if (sprite >= textures.size() || textures[sprite] == nullptr) {
 		return;
 	}
 	int width, height;

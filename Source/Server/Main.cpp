@@ -1,5 +1,6 @@
 // Copyright 2023 Justus Zorn
 
+#include <chrono>
 #include <iostream>
 
 #include <Server/ContentManager.h>
@@ -15,8 +16,20 @@ int main(int argc, char* argv[]) {
 	Server server(17899);
 	content.reload(server);
 
+	auto last_content_update = std::chrono::high_resolution_clock::now();
+	auto last_update = last_content_update;
 	while (true) {
-		server.update(content);
+		auto now = std::chrono::high_resolution_clock::now();
+		uint64_t duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_content_update).count();
+		if (duration >= CONTENT_RELOAD) {
+			last_content_update = now;
+			content.reload(server);
+		}
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
+		if (duration >= 50) {
+			last_update = now;
+			server.update(content);
+		}
 	}
 
 	enet_deinitialize();

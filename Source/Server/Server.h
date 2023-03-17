@@ -7,6 +7,8 @@
 
 #include <enet.h>
 
+#include <Anomaly.h>
+
 class ContentManager;
 
 class Server {
@@ -19,7 +21,7 @@ public:
 
 	void update(ContentManager& content);
 
-	void update_client_image(uint16_t client, uint32_t id, const std::vector<uint8_t>& data);
+	void update_client_image(uint16_t client, uint16_t id, const std::vector<uint8_t>& data);
 	void update_image(uint32_t id, const std::vector<uint8_t>& data);
 
 private:
@@ -28,11 +30,13 @@ private:
 	struct Client {
 		bool connected = false;
 		ENetPeer* peer;
+		std::vector<Sprite> sprites;
 	};
 
 	std::vector<Client> clients;
 
-	static ENetPacket* create_image_packet(uint32_t id, const std::vector<uint8_t>& data);
+	ENetPacket* create_sprite_packet(Client& client);
+	static ENetPacket* create_image_packet(uint16_t id, const std::vector<uint8_t>& data);
 };
 
 #endif

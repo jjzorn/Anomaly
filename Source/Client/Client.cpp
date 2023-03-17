@@ -41,7 +41,9 @@ bool Client::update(Renderer& renderer) {
 		case ENET_EVENT_TYPE_DISCONNECT:
 			return false;
 		case ENET_EVENT_TYPE_RECEIVE:
-			if (event.channelID == CONTENT_CHANNEL) {
+			if (event.channelID == SPRITE_CHANNEL) {
+				draw(renderer, event.packet);
+			} else if (event.channelID == CONTENT_CHANNEL) {
 				update_content(renderer, event.packet);
 			}
 			enet_packet_destroy(event.packet);
@@ -52,9 +54,26 @@ bool Client::update(Renderer& renderer) {
 }
 
 void Client::update_content(Renderer& renderer, ENetPacket* packet) {
-	if (packet->data[0] == static_cast<uint8_t>(PacketType::IMAGE)) {
-		uint32_t id = read32(packet->data + 1);
-		uint32_t length = read32(packet->data + 5);
-		renderer.load_image(id, packet->data + 9, length);
+	if (packet->data[0] == static_cast<uint8_t>(ContentType::IMAGE)) {
+		uint16_t id = read16(packet->data + 1);
+		uint32_t length = read32(packet->data + 3);
+		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (image ID %u)", id);
+		renderer.load_image(id, packet->data + 7, length);
 	}
+}
+
+void Client::draw(Renderer& renderer, ENetPacket* packet) {
+	renderer.clear(0, 0, 0);
+	uint32_t length = read32(packet->data);
+	for (uint32_t i = 0; i < length; ++i) {
+		uint32_t offset = 4 + i * 6;
+		if (i * 6 + 6 > packet->dataLength) {
+			return;
+		}
+		uint16_t sprite = read16(packet->data + offset);
+		uint16_t x = read16(packet->data + offset + 2);
+		uint16_t y = read16(packet->data + offset + 4);
+		renderer.draw_sprite(sprite, x, y);
+	}
+	renderer.present();
 }

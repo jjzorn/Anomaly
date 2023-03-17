@@ -19,9 +19,6 @@ int SDL_main(int argc, char* argv[]) {
 		Client client("::1", 17899);
 		while (renderer.update()) {
 			if (!client.update(renderer)) break;
-			renderer.clear(255, 0, 255);
-			renderer.draw_sprite(0, 600, 400);
-			renderer.present();
 		}
 	}
 

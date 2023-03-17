@@ -20,8 +20,8 @@ public:
 	void clear(uint8_t r, uint8_t g, uint8_t b);
 	void present();
 
-	void load_image(uint32_t id, const uint8_t* data, uint32_t length);
-	void draw_sprite(uint32_t sprite, uint16_t x, uint16_t y);
+	void load_image(uint16_t id, const uint8_t* data, uint32_t length);
+	void draw_sprite(uint16_t sprite, uint16_t x, uint16_t y);
 
 private:
 	SDL_Window* window = nullptr;

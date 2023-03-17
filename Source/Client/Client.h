@@ -24,6 +24,7 @@ private:
 	ENetPeer* peer = nullptr;
 
 	void update_content(Renderer& renderer, ENetPacket* packet);
+	void draw(Renderer& renderer, ENetPacket* packet);
 };
 
 #endif

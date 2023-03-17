@@ -17,11 +17,11 @@ public:
 private:
 	struct Image {
 		std::vector<uint8_t> data;
-		uint32_t id;
 		std::filesystem::file_time_type last_write;
+		uint16_t id;
 	};
 
-	uint32_t image_id = 0;
+	uint16_t image_id = 0;
 	std::unordered_map<std::filesystem::path, Image> images;
 };
 

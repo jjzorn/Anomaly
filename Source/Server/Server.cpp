@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include <Anomaly.h>
 #include <Server/ContentManager.h>
 #include <Server/Server.h>
 
@@ -32,6 +31,7 @@ void Server::update(ContentManager& content) {
 			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
+			clients[peer_id].sprites.push_back({0, 600, 400});
 			content.init_client(*this, peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
@@ -44,9 +44,15 @@ void Server::update(ContentManager& content) {
 			break;
 		}
 	}
+
+	for (Client& client : clients) {
+		if (!client.connected) continue;
+		ENetPacket* packet = create_sprite_packet(client);
+		enet_peer_send(client.peer, SPRITE_CHANNEL, packet);
+	}
 }
 
-void Server::update_client_image(uint16_t client, uint32_t id, const std::vector<uint8_t>& data) {
+void Server::update_client_image(uint16_t client, uint16_t id, const std::vector<uint8_t>& data) {
 	ENetPacket* packet = create_image_packet(id, data);
 	enet_peer_send(clients[client].peer, CONTENT_CHANNEL, packet);
 }
@@ -56,11 +62,25 @@ void Server::update_image(uint32_t id, const std::vector<uint8_t>& data) {
 	enet_host_broadcast(host, CONTENT_CHANNEL, packet);
 }
 
-ENetPacket* Server::create_image_packet(uint32_t id, const std::vector<uint8_t>& data) {
-	ENetPacket* packet = enet_packet_create(nullptr, 9 + data.size(), ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED);
-	packet->data[0] = static_cast<uint8_t>(PacketType::IMAGE);
-	write32(packet->data + 1, id);
-	write32(packet->data + 5, data.size());
-	memcpy(packet->data + 9, data.data(), data.size());
+ENetPacket* Server::create_sprite_packet(Client& client) {
+	uint32_t size = 4 + sizeof(Sprite) * client.sprites.size();
+	ENetPacket* packet = enet_packet_create(nullptr, size, 0);
+	write32(packet->data, static_cast<uint32_t>(client.sprites.size()));
+	uint8_t* data = packet->data + 4;
+	for (const Sprite& sprite : client.sprites) {
+		write16(data, sprite.sprite);
+		write16(data + 2, sprite.x);
+		write16(data + 4, sprite.y);
+		data += sizeof(Sprite);
+	}
+	return packet;
+}
+
+ENetPacket* Server::create_image_packet(uint16_t id, const std::vector<uint8_t>& data) {
+	ENetPacket* packet = enet_packet_create(nullptr, 7 + data.size(), ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED);
+	packet->data[0] = static_cast<uint8_t>(ContentType::IMAGE);
+	write16(packet->data + 1, id);
+	write32(packet->data + 3, data.size());
+	memcpy(packet->data + 7, data.data(), data.size());
 	return packet;
 }
