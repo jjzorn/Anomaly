@@ -20,8 +20,9 @@ public:
 	void use() const;
 
 	GLint get_uniform_location(const char* name);
-	void set(GLint location, float f);
+	void set(GLint location, float x);
 	void set(GLint location, float x, float y);
+	void set(GLint location, float x, float y, float z);
 
 private:
 	GLuint program;

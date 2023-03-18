@@ -44,6 +44,7 @@ Window::Window() {
 		exit(1);
 	}
 #endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
 Window::~Window() {

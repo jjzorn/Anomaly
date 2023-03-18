@@ -61,10 +61,14 @@ GLint Shader::get_uniform_location(const char* name) {
 	return glGetUniformLocation(program, name);
 }
 
-void Shader::set(GLint location, float f) {
-	glUniform1f(location, f);
+void Shader::set(GLint location, float x) {
+	glUniform1f(location, x);
 }
 
 void Shader::set(GLint location, float x, float y) {
 	glUniform2f(location, x, y);
+}
+
+void Shader::set(GLint location, float x, float y, float z) {
+	glUniform3f(location, x, y, z);
 }

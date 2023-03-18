@@ -59,13 +59,13 @@ void Client::update_content(Renderer& renderer, ENetPacket* packet) {
 		renderer.load_image(id, packet->data + 7, length);
 	}
 	else if (packet->data[0] == static_cast<uint8_t>(ContentType::FONT)) {
-		//SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (font ID %u)", id);
-		//renderer.load_font(id, packet->data + 7, length);
+		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (font ID %u)", id);
+		renderer.load_font(id, packet->data + 7, length);
 	}
 }
 
 void Client::draw(Renderer& renderer, ENetPacket* packet) {
-	renderer.clear(0, 0, 0);
+	renderer.clear(0.0f, 0.0f, 0.0f);
 	uint32_t length = read32(packet->data);
 	for (uint32_t i = 0; i < length; ++i) {
 		uint32_t offset = 4 + i * sizeof(Sprite);
@@ -78,6 +78,6 @@ void Client::draw(Renderer& renderer, ENetPacket* packet) {
 		uint16_t scale = read16(packet->data + offset + 6);
 		renderer.draw_sprite(texture, x, y, scale);
 	}
-	//renderer.draw_text(0, 600, 400, "My text!");
+	renderer.draw_text(0, 0, 0, 10000, "My text!");
 	renderer.present();
 }

@@ -74,7 +74,6 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 		write16(data + 6, sprite.scale);
 		data += sizeof(Sprite);
 	}
-	// TODO: Fix image id length
 	return packet;
 }
 
