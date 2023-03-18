@@ -33,6 +33,9 @@ public:
 
 private:
 	Window* window;
+	
+	GLuint vao, vbo;
+	GLuint missing_texture;
 
 	Shader sprite_shader;
 	GLint sprite_shader_pos;
@@ -42,8 +45,6 @@ private:
 	GLint font_shader_pos;
 	GLint font_shader_scale;
 	GLint font_shader_color;
-
-	GLuint vao, vbo;
 
 	struct Texture {
 		GLuint texture;

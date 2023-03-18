@@ -46,6 +46,13 @@ float quad[] = {
 	1.0f, 1.0f, 1.0f, 0.0f
 };
 
+uint8_t missing_texture_data[] = {
+	255, 0, 255,
+	0, 0, 0,
+	0, 0, 0,
+	255, 0, 255
+};
+
 Renderer::Renderer(Window& window)
 	: window{ &window }, sprite_shader(window, vsh, sprite_fsh), font_shader(window, vsh, font_fsh) {
 	sprite_shader_pos = sprite_shader.get_uniform_location("pos");
@@ -70,6 +77,18 @@ Renderer::Renderer(Window& window)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	glGenTextures(1, &missing_texture);
+	glBindTexture(GL_TEXTURE_2D, missing_texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, missing_texture_data);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Renderer::~Renderer() {
@@ -94,16 +113,18 @@ void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
 	if (textures.size() <= id) {
 		textures.resize(id + 1);
 	}
-	if (textures[id].init) {
+	if (textures[id].init && textures[id].texture != missing_texture) {
 		glDeleteTextures(1, &textures[id].texture);
 	}
+	textures[id].init = true;
 	int width, height;
 	uint8_t* image_data = stbi_load_from_memory(data, length, &width, &height, nullptr, 4);
 	if (image_data == nullptr) {
-		// TODO: Use a replacement texture
+		textures[id].texture = missing_texture;
+		textures[id].width = 2;
+		textures[id].height = 2;
 		return;
 	}
-	textures[id].init = true;
 	textures[id].width = width;
 	textures[id].height = height;
 
