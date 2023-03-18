@@ -16,6 +16,8 @@ public:
 
 	Renderer& operator=(const Renderer&) = delete;
 
+	void error(const std::string& message);
+
 	bool update();
 
 	void clear(uint8_t r, uint8_t g, uint8_t b);
@@ -35,7 +37,7 @@ private:
 	};
 
 	SDL_Window* window = nullptr;
-	SDL_Renderer* renderer = nullptr;
+	SDL_GLContext context = nullptr;
 
 	std::vector<SDL_Texture*> textures;
 	std::vector<Font> fonts;

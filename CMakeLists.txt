@@ -6,8 +6,9 @@ project("Anomaly")
 
 set(ENET_STATIC ON)
 
-add_subdirectory("3rdParty/SDL")
 add_subdirectory("3rdParty/enet")
+add_subdirectory("3rdParty/glad")
+add_subdirectory("3rdParty/SDL")
 add_subdirectory("3rdParty/stb")
 
 set(CLIENT_SOURCE_FILES
@@ -24,7 +25,7 @@ set(SERVER_SOURCE_FILES
 
 if (ANDROID)
 add_library("main" SHARED ${CLIENT_SOURCE_FILES})
-target_link_libraries("main" "SDL2" "enet_static" "stb")
+target_link_libraries("main" "enet_static" "glad" "SDL2" "stb")
 target_include_directories("main" PRIVATE "Source")
 target_compile_definitions("main" PRIVATE "ANOMALY_MOBILE")
 else()
@@ -35,7 +36,7 @@ else()
 add_executable("Anomaly" ${CLIENT_SOURCE_FILES})
 add_executable("AnomalyServer" ${SERVER_SOURCE_FILES})
 endif()
-target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "enet_static" "stb")
+target_link_libraries("Anomaly" "enet_static" "glad" "SDL2main" "SDL2-static" "stb")
 target_include_directories("Anomaly" PRIVATE "Source")
 
 target_link_libraries("AnomalyServer" "enet_static" "stb")

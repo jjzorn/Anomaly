@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <glad/glad.h>
 #include <stb_image.h>
 
 #include <Client/Renderer.h>
@@ -9,25 +10,54 @@
 Renderer::Renderer() {
 	SDL_Init(SDL_INIT_VIDEO);
 #ifdef ANOMALY_MOBILE
-	window = SDL_CreateWindow("Anomaly", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN);
+	window = SDL_CreateWindow("Anomaly", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0,
+		SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
 #else
-	window = SDL_CreateWindow("Anomaly", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Anomaly", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
+		SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 #endif
 	if (!window) {
-		std::cerr << "ERROR: Could not create SDL window\n";
-		return;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", SDL_GetError(), window);
+		exit(1);
 	}
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
-		std::cerr << "ERROR: Could not create SDL renderer\n";
-		return;
+#ifdef ANOMALY_MOBILE
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#else
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#endif
+	context = SDL_GL_CreateContext(window);
+	if (!context) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", SDL_GetError(), window);
+		exit(1);
 	}
+#ifdef ANOMALY_MOBILE
+	if (!gladLoadGLES2Loader(SDL_GL_GetProcAddress)) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Could not initialize OpenGL", window);
+		exit(1);
+	}
+#else
+	if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Could not initialize OpenGL", window);
+		exit(1);
+	}
+#endif
 }
 
 Renderer::~Renderer() {
-	SDL_DestroyRenderer(renderer);
+	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+
+void Renderer::error(const std::string& message) {
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), window) < 0) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", message.c_str());
+	}
+	throw std::exception();
 }
 
 bool Renderer::update() {
@@ -42,12 +72,12 @@ bool Renderer::update() {
 }
 
 void Renderer::clear(uint8_t r, uint8_t g, uint8_t b) {
-	SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-	SDL_RenderClear(renderer);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Renderer::present() {
-	SDL_RenderPresent(renderer);
+	SDL_GL_SwapWindow(window);
 }
 
 void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
@@ -65,8 +95,8 @@ void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
 		return;
 	}
 	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(image_data, width, height, 32, width * 4, SDL_PIXELFORMAT_RGBA32);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-	textures[id] = texture;
+	//SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	//textures[id] = texture;
 	SDL_FreeSurface(surface);
 	stbi_image_free(image_data);
 }
@@ -85,8 +115,9 @@ void Renderer::draw_sprite(uint16_t sprite, uint16_t x, uint16_t y) {
 	if (sprite >= textures.size() || textures[sprite] == nullptr) {
 		return;
 	}
+	return;
 	int width, height;
-	SDL_QueryTexture(textures[sprite], nullptr, nullptr, &width, &height);
+	//SDL_QueryTexture(textures[sprite], nullptr, nullptr, &width, &height);
 	SDL_Rect src;
 	src.w = width;
 	src.h = height;
@@ -97,7 +128,7 @@ void Renderer::draw_sprite(uint16_t sprite, uint16_t x, uint16_t y) {
 	dst.h = height;
 	dst.x = x - width / 2;
 	dst.y = y - height / 2;
-	SDL_RenderCopy(renderer, textures[sprite], &src, &dst);
+	//SDL_RenderCopy(renderer, textures[sprite], &src, &dst);
 }
 
 void Renderer::draw_text(uint16_t font, uint16_t x, uint16_t y, const char* text) {

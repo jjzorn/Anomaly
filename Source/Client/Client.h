@@ -11,7 +11,7 @@
 
 class Client {
 public:
-	Client(const std::string& hostname, uint16_t port);
+	Client(const std::string& hostname, uint16_t port, Renderer& renderer);
 	Client(const Client&) = delete;
 	~Client();
 

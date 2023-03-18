@@ -8,21 +8,14 @@
 #include <Client/Renderer.h>
 
 int SDL_main(int argc, char* argv[]) {
-	Renderer renderer;
-
-	if (enet_initialize() < 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize ENet");
-		return 1;
-	}
-
-	{
-		Client client("::1", 17899);
+	try {
+		Renderer renderer;
+		//Client client("::1", 17899);
 		while (renderer.update()) {
-			if (!client.update(renderer)) break;
+			//if (!client.update(renderer)) break;
+			renderer.clear(0, 0, 0);
+			renderer.present();
 		}
-	}
-
-	enet_deinitialize();
-
+	} catch (...) {}
 	return 0;
 }
