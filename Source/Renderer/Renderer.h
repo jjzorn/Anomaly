@@ -1,27 +1,22 @@
 // Copyright 2023 Justus Zorn
 
-#ifndef ANOMALY_CLIENT_RENDERER_H
-#define ANOMALY_CLIENT_RENDERER_H
+#ifndef ANOMALY_RENDERER_RENDERER_H
+#define ANOMALY_RENDERER_RENDERER_H
 
 #include <vector>
 
 #include <stb_truetype.h>
 #include <SDL.h>
 
+#include <Renderer/Window.h>
+
 class Renderer {
 public:
-	Renderer();
-	Renderer(const Renderer&) = delete;
-	~Renderer();
+	Renderer(Window& window);
 
-	Renderer& operator=(const Renderer&) = delete;
+	Window& get_window();
 
-	void error(const std::string& message);
-
-	bool update();
-
-	void clear(uint8_t r, uint8_t g, uint8_t b);
-	void present();
+	void clear(float r, float g, float b);
 
 	void load_image(uint16_t id, const uint8_t* data, uint32_t length);
 	void load_font(uint16_t id, const uint8_t* data, uint32_t length);
@@ -36,8 +31,7 @@ private:
 		bool init = false;
 	};
 
-	SDL_Window* window = nullptr;
-	SDL_GLContext context = nullptr;
+	Window* window;
 
 	std::vector<SDL_Texture*> textures;
 	std::vector<Font> fonts;

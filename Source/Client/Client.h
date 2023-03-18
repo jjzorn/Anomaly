@@ -7,24 +7,24 @@
 
 #include <enet.h>
 
-#include <Client/Renderer.h>
+#include <Renderer/Window.h>
 
 class Client {
 public:
-	Client(const std::string& hostname, uint16_t port, Renderer& renderer);
+	Client(const std::string& hostname, uint16_t port, Window& window);
 	Client(const Client&) = delete;
 	~Client();
 
 	Client& operator=(const Client&) = delete;
 
-	bool update(Renderer& renderer);
+	bool update();
 
 private:
 	ENetHost* host = nullptr;
 	ENetPeer* peer = nullptr;
 
-	void update_content(Renderer& renderer, ENetPacket* packet);
-	void draw(Renderer& renderer, ENetPacket* packet);
+	//void update_content(Renderer& window, ENetPacket* packet);
+	//void draw(Renderer& renderer, ENetPacket* packet);
 };
 
 #endif
