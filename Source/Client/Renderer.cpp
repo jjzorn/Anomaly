@@ -71,6 +71,16 @@ void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
 	stbi_image_free(image_data);
 }
 
+void Renderer::load_font(uint16_t id, const uint8_t* data, uint32_t length) {
+	if (fonts.size() <= id) {
+		fonts.resize(id + 1);
+	}
+	fonts[id].init = true;
+	fonts[id].buffer.assign(data, data + length);
+	int offset = stbtt_GetFontOffsetForIndex(fonts[id].buffer.data(), 0);
+	stbtt_InitFont(&fonts[id].info, fonts[id].buffer.data(), offset);
+}
+
 void Renderer::draw_sprite(uint16_t sprite, uint16_t x, uint16_t y) {
 	if (sprite >= textures.size() || textures[sprite] == nullptr) {
 		return;
@@ -88,4 +98,10 @@ void Renderer::draw_sprite(uint16_t sprite, uint16_t x, uint16_t y) {
 	dst.x = x - width / 2;
 	dst.y = y - height / 2;
 	SDL_RenderCopy(renderer, textures[sprite], &src, &dst);
+}
+
+void Renderer::draw_text(uint16_t font, uint16_t x, uint16_t y, const char* text) {
+	if (font >= fonts.size() || !fonts[font].init) {
+		return;
+	}
 }

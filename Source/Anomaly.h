@@ -6,7 +6,8 @@
 #include <cstdint>
 
 enum class ContentType {
-	IMAGE
+	IMAGE,
+	FONT
 };
 
 struct Sprite {

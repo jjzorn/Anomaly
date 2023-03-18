@@ -21,8 +21,8 @@ public:
 
 	void update(ContentManager& content);
 
-	void update_client_image(uint16_t client, uint16_t id, const std::vector<uint8_t>& data);
-	void update_image(uint32_t id, const std::vector<uint8_t>& data);
+	void update_client_content(uint16_t client, ContentType type, uint16_t id, const std::vector<uint8_t>& data);
+	void update_content(ContentType type, uint16_t id, const std::vector<uint8_t>& data);
 
 private:
 	ENetHost* host;
@@ -36,7 +36,7 @@ private:
 	std::vector<Client> clients;
 
 	ENetPacket* create_sprite_packet(Client& client);
-	static ENetPacket* create_image_packet(uint16_t id, const std::vector<uint8_t>& data);
+	static ENetPacket* create_content_packet(ContentType type, uint16_t id, const std::vector<uint8_t>& data);
 };
 
 #endif

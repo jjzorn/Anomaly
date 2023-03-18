@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <stb_image.h>
+
 #include <Server/ContentManager.h>
 
 static void read_file(const std::filesystem::path& path, std::vector<uint8_t>& data) {
@@ -19,30 +21,79 @@ static void read_file(const std::filesystem::path& path, std::vector<uint8_t>& d
 
 void ContentManager::reload(Server& server) {
 	std::cout << "INFO: Reloading content...\n";
-	for (auto entry : std::filesystem::recursive_directory_iterator("Content/Images")) {
-		if (entry.is_regular_file()) {
-			std::filesystem::path path = std::filesystem::canonical(entry.path());
-			Image* image;
-			auto it = images.find(path);
-			if (it != images.end()) {
-				image = &it->second;
-				if (entry.last_write_time() == image->last_write) {
-					continue;
+	try {
+		for (auto entry : std::filesystem::recursive_directory_iterator("Content/Images")) {
+			if (entry.is_regular_file()) {
+				std::filesystem::path path = std::filesystem::canonical(entry.path());
+				Image* image;
+				auto it = images.find(path);
+				if (it != images.end()) {
+					image = &it->second;
+					if (entry.last_write_time() == image->last_write) {
+						continue;
+					}
 				}
+				else {
+					image = &images[path];
+					image->id = image_id++;
+				}
+				image->last_write = entry.last_write_time();
+				read_file(path, image->data);
+				int width, height;
+				stbi_info_from_memory(image->data.data(), image->data.size(), &width, &height, nullptr);
+				image->width = width;
+				image->height = height;
+				server.update_content(ContentType::IMAGE, image->id, image->data);
 			}
-			else {
-				image = &images[path];
-				image->id = image_id++;
-			}
-			image->last_write = entry.last_write_time();
-			read_file(path, image->data);
-			server.update_image(image->id, image->data);
 		}
-	}
+	} catch (...) {}
+	try {
+		for (auto entry : std::filesystem::recursive_directory_iterator("Content/Fonts")) {
+			if (entry.is_regular_file()) {
+				std::filesystem::path path = std::filesystem::canonical(entry.path());
+				Font* font;
+				auto it = fonts.find(path);
+				if (it != fonts.end()) {
+					font = &it->second;
+					if (entry.last_write_time() == font->last_write) {
+						continue;
+					}
+				}
+				else {
+					font = &fonts[path];
+					font->id = font_id++;
+				}
+				font->last_write = entry.last_write_time();
+				read_file(path, font->data);
+				int offset = stbtt_GetFontOffsetForIndex(font->data.data(), 0);
+				stbtt_InitFont(&font->info, font->data.data(), offset);
+				server.update_content(ContentType::FONT, font->id, font->data);
+			}
+		}
+	} catch (...) {}
 }
 
 void ContentManager::init_client(Server& server, uint16_t client) {
 	for (auto it : images) {
-		server.update_client_image(client, it.second.id, it.second.data);
+		server.update_client_content(client, ContentType::IMAGE, it.second.id, it.second.data);
 	}
+	for (auto it : fonts) {
+		server.update_client_content(client, ContentType::FONT, it.second.id, it.second.data);
+	}
+}
+
+uint16_t ContentManager::get_image_width(const std::filesystem::path& path) const {
+	auto it = images.find(path);
+	if (it == images.end()) {
+		return 0;
+	}
+	return it->second.width;
+}
+
+uint16_t ContentManager::get_image_height(const std::filesystem::path& path) const {
+	auto it = images.find(path);
+	if (it == images.end()) {
+		return 0;
+	}
+	return it->second.height;
 }

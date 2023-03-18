@@ -52,13 +52,13 @@ void Server::update(ContentManager& content) {
 	}
 }
 
-void Server::update_client_image(uint16_t client, uint16_t id, const std::vector<uint8_t>& data) {
-	ENetPacket* packet = create_image_packet(id, data);
+void Server::update_client_content(uint16_t client, ContentType type, uint16_t id, const std::vector<uint8_t>& data) {
+	ENetPacket* packet = create_content_packet(type, id, data);
 	enet_peer_send(clients[client].peer, CONTENT_CHANNEL, packet);
 }
 
-void Server::update_image(uint32_t id, const std::vector<uint8_t>& data) {
-	ENetPacket* packet = create_image_packet(id, data);
+void Server::update_content(ContentType type, uint16_t id, const std::vector<uint8_t>& data) {
+	ENetPacket* packet = create_content_packet(type, id, data);
 	enet_host_broadcast(host, CONTENT_CHANNEL, packet);
 }
 
@@ -76,9 +76,9 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 	return packet;
 }
 
-ENetPacket* Server::create_image_packet(uint16_t id, const std::vector<uint8_t>& data) {
+ENetPacket* Server::create_content_packet(ContentType type, uint16_t id, const std::vector<uint8_t>& data) {
 	ENetPacket* packet = enet_packet_create(nullptr, 7 + data.size(), ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED);
-	packet->data[0] = static_cast<uint8_t>(ContentType::IMAGE);
+	packet->data[0] = static_cast<uint8_t>(type);
 	write16(packet->data + 1, id);
 	write32(packet->data + 3, data.size());
 	memcpy(packet->data + 7, data.data(), data.size());

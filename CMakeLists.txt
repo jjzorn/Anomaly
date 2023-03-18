@@ -38,7 +38,7 @@ endif()
 target_link_libraries("Anomaly" "SDL2-static" "SDL2main" "enet_static" "stb")
 target_include_directories("Anomaly" PRIVATE "Source")
 
-target_link_libraries("AnomalyServer" "enet_static")
+target_link_libraries("AnomalyServer" "enet_static" "stb")
 target_include_directories("AnomalyServer" PRIVATE "Source")
 target_compile_features("AnomalyServer" PRIVATE cxx_std_17)
 endif()
