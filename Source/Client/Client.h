@@ -7,6 +7,7 @@
 
 #include <enet.h>
 
+#include <Renderer/Renderer.h>
 #include <Renderer/Window.h>
 
 class Client {
@@ -17,14 +18,14 @@ public:
 
 	Client& operator=(const Client&) = delete;
 
-	bool update();
+	bool update(Renderer& renderer);
 
 private:
 	ENetHost* host = nullptr;
 	ENetPeer* peer = nullptr;
 
-	//void update_content(Renderer& window, ENetPacket* packet);
-	//void draw(Renderer& renderer, ENetPacket* packet);
+	void update_content(Renderer& window, ENetPacket* packet);
+	void draw(Renderer& renderer, ENetPacket* packet);
 };
 
 #endif

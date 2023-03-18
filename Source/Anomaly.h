@@ -11,9 +11,10 @@ enum class ContentType {
 };
 
 struct Sprite {
-	uint16_t sprite;
-	uint16_t x;
-	uint16_t y;
+	uint16_t texture;
+	int16_t x;
+	int16_t y;
+	uint16_t scale;
 };
 
 inline void write16(uint8_t* area, uint16_t i) {

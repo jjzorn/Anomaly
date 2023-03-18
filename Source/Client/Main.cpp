@@ -1,7 +1,5 @@
 // Copyright 2023 Justus Zorn
 
-#include <iostream>
-
 #include <enet.h>
 
 #include <Client/Client.h>
@@ -12,10 +10,9 @@ int SDL_main(int argc, char* argv[]) {
 	try {
 		Window window;
 		Renderer renderer(window);
-		//Client client("::1", 17899);
+		Client client("192.168.178.29", 17899, window);
 		while (window.update()) {
-			renderer.clear(0.0f, 1.0f, 0.0f);
-			window.present();
+			if (!client.update(renderer)) break;
 		}
 	} catch (...) {}
 	return 0;

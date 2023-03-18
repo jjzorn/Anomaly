@@ -31,7 +31,7 @@ void Server::update(ContentManager& content) {
 			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
-			clients[peer_id].sprites.push_back({0, 600, 400});
+			clients[peer_id].sprites.push_back({0, -1000, -1000, 10000});
 			content.init_client(*this, peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
@@ -68,11 +68,13 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 	write32(packet->data, static_cast<uint32_t>(client.sprites.size()));
 	uint8_t* data = packet->data + 4;
 	for (const Sprite& sprite : client.sprites) {
-		write16(data, sprite.sprite);
-		write16(data + 2, sprite.x);
-		write16(data + 4, sprite.y);
+		write16(data, sprite.texture);
+		write16(data + 2, static_cast<uint16_t>(sprite.x));
+		write16(data + 4, static_cast<uint16_t>(sprite.y));
+		write16(data + 6, sprite.scale);
 		data += sizeof(Sprite);
 	}
+	// TODO: Fix image id length
 	return packet;
 }
 

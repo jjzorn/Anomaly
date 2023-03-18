@@ -20,6 +20,9 @@ public:
 	bool update();
 	void present();
 
+	int width() const;
+	int height() const;
+
 private:
 	SDL_Window* window = nullptr;
 	SDL_GLContext context = nullptr;
