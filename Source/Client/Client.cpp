@@ -78,6 +78,6 @@ void Client::draw(Renderer& renderer, ENetPacket* packet) {
 		uint16_t scale = read16(packet->data + offset + 6);
 		renderer.draw_sprite(texture, x, y, scale);
 	}
-	renderer.draw_text(0, 0, 0, 10000, "My text!");
+	renderer.draw_text(0, -10000, 0, 10000, "Server.cpp");
 	renderer.present();
 }

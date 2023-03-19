@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
+#include <Anomaly.h>
 #include <Renderer/Renderer.h>
 
 std::string vsh =
@@ -28,21 +29,20 @@ std::string font_fsh =
 "out vec4 out_color;\n"
 "uniform sampler2D sdf;\n"
 "uniform vec3 color;\n"
+"const float width = 0.52;\n"
 "void main() {\n"
 "float distance = texture(sdf, texcoords).r;\n"
-"if (distance < 0.5) {\n"
-"discard;\n"
-"} else {\n"
-"out_color = vec4(color, 1.0);\n"
-"}\n"
+"float aaf = fwidth(distance);\n"
+"float opacity = smoothstep(width - aaf, width + aaf, distance);\n"
+"out_color = vec4(color, opacity);\n"
 "}\n";
 
 float quad[] = {
-	-1.0f, -1.0f, 0.0f, 1.0f,
-	1.0f, -1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f, 0.0f, 0.0f,
-	-1.0f, 1.0f, 0.0f, 0.0f,
-	1.0f, -1.0f, 1.0f, 1.0f,
+	0.0f, 0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 1.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	1.0f, 0.0f, 1.0f, 1.0f,
 	1.0f, 1.0f, 1.0f, 0.0f
 };
 
@@ -61,6 +61,9 @@ Renderer::Renderer(Window& window)
 	font_shader_pos = font_shader.get_uniform_location("pos");
 	font_shader_scale = font_shader.get_uniform_location("scale");
 	font_shader_color = font_shader.get_uniform_location("color");
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -167,9 +170,15 @@ void Renderer::draw_sprite(uint16_t id, int16_t x, int16_t y, uint16_t scale) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textures[id].texture);
 
+	float yscale = scale / 10000.0f;
+	float xscale = yscale / window_aspect_ratio * texture_aspect_ratio;
+
+	float middle_x = x / 10000.0f / window_aspect_ratio;
+	float middle_y = y / 10000.0f;
+
 	sprite_shader.use();
-	sprite_shader.set(sprite_shader_pos, x / 10000.0f / window_aspect_ratio, y / 10000.0f);
-	sprite_shader.set(sprite_shader_scale, scale / 20000.0f / window_aspect_ratio * texture_aspect_ratio, scale / 20000.0f);
+	sprite_shader.set(sprite_shader_pos, middle_x - xscale / 2.0f, middle_y - yscale / 2.0f);
+	sprite_shader.set(sprite_shader_scale, xscale, yscale);
 
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -184,28 +193,41 @@ void Renderer::draw_text(uint16_t id, int16_t x, int16_t y, uint16_t scale, cons
 		return;
 	}
 
-	Glyph& glyph = load_glyph(id, 'm');
-
 	float window_aspect_ratio = static_cast<float>(window->width()) / static_cast<float>(window->height());
-	float texture_aspect_ratio = static_cast<float>(glyph.width) / static_cast<float>(glyph.height);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glyph.texture);
+	float yscale = scale / 10000.0f / FONT_PIXELS;
+	float xscale = yscale / window_aspect_ratio;
 
-	/*sprite_shader.use();
-	sprite_shader.set(sprite_shader_pos, x / 10000.0f / window_aspect_ratio, y / 10000.0f);
-	sprite_shader.set(sprite_shader_scale, scale / 20000.0f / window_aspect_ratio * texture_aspect_ratio, scale / 20000.0f);*/
+	float pos = x / 10000.0f;
+	float baseline = y / 10000.0f - scale / 20000.0f;
+
+	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "y / 10000.0f = %f, yscale = %f", y / 10000.0f, yscale);
 
 	font_shader.use();
-	font_shader.set(font_shader_pos, x / 10000.0f / window_aspect_ratio, y / 10000.0f);
-	font_shader.set(font_shader_scale, scale / 20000.0f / window_aspect_ratio * texture_aspect_ratio, scale / 20000.0f);
-	font_shader.set(font_shader_color, 1.0f, 0.0f, 0.0f);
 
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
+	while (*text) {
+		uint32_t codepoint = *(text++);
+		Glyph& glyph = load_glyph(id, codepoint);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, glyph.texture);
+
+		float left = pos + glyph.left * xscale;
+		float bottom = baseline + glyph.bottom * yscale;
+
+		font_shader.set(font_shader_pos, left, bottom);
+		font_shader.set(font_shader_scale, glyph.width * xscale, glyph.height * yscale);
+		font_shader.set(font_shader_color, 1.0f, 0.0f, 0.0f);
+
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		pos += glyph.advance * xscale;
+	}
+
 	glUseProgram(0);
 }
 
@@ -215,13 +237,29 @@ Renderer::Glyph& Renderer::load_glyph(uint16_t id, uint32_t codepoint) {
 	if (it != font.glyphs.end()) {
 		return it->second;
 	}
-	float scale = stbtt_ScaleForPixelHeight(&font.info, 32);
-	int width, height;
-	uint8_t* sdf = stbtt_GetCodepointSDF(&font.info, scale, codepoint, 0, 128, 10, &width, &height, nullptr, nullptr);
+	float scale = stbtt_ScaleForPixelHeight(&font.info, FONT_PIXELS);
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	int advance, lsb;
+	stbtt_GetCodepointHMetrics(&font.info, codepoint, &advance, &lsb);
+	int x0, y0, x1, y1;
+	stbtt_GetCodepointBox(&font.info, codepoint, &x0, &y0, &x1, &y1);
+
+	Glyph& glyph = font.glyphs[codepoint];
+	glyph.left = x0 * scale - FONT_SDF_PADDING;
+	glyph.bottom = y0 * scale - FONT_SDF_PADDING;
+	glyph.width = (x1 - x0) * scale + 2 * FONT_SDF_PADDING;
+	glyph.height = (y1 - y0) * scale + 2 * FONT_SDF_PADDING;
+	glyph.advance = advance * scale;
+
+	int width, height;
+	uint8_t* sdf = stbtt_GetCodepointSDF(&font.info, scale, codepoint, FONT_SDF_PADDING, 128, FONT_SDF_SCALE, &width, &height, nullptr, nullptr);
+	if (sdf == nullptr) {
+		glyph.texture = 0;
+		return glyph;
+	}
+
+	glGenTextures(1, &glyph.texture);
+	glBindTexture(GL_TEXTURE_2D, glyph.texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -232,14 +270,7 @@ Renderer::Glyph& Renderer::load_glyph(uint16_t id, uint32_t codepoint) {
 	
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	Glyph& glyph = font.glyphs[codepoint];
-	glyph.texture = texture;
-	glyph.width = width;
-	glyph.height = height;
-
 	stbtt_FreeSDF(sdf, nullptr);
-
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Glyph dimensions: %dx%d", glyph.width, glyph.height);
 
 	return glyph;
 }

@@ -31,7 +31,7 @@ void Server::update(ContentManager& content) {
 			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
-			clients[peer_id].sprites.push_back({0, -1000, -1000, 10000});
+			clients[peer_id].sprites.push_back({0, 0, 0, 20000});
 			content.init_client(*this, peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:

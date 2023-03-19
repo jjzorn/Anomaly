@@ -54,7 +54,7 @@ private:
 
 	struct Glyph {
 		GLuint texture;
-		int width, height;
+		float left, bottom, width, height, advance;
 	};
 
 	struct Font {

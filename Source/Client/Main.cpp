@@ -10,7 +10,7 @@ int SDL_main(int argc, char* argv[]) {
 	try {
 		Window window;
 		Renderer renderer(window);
-		Client client("2003:dd:ff3d:9500:e1e9:5843:ca9d:b9be", 17899, window);
+		Client client("2003:dd:ff3d:9500:73bf:9156:fe78:7f74", 17899, window);
 		while (window.update()) {
 			if (!client.update(renderer)) break;
 		}

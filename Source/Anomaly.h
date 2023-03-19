@@ -44,4 +44,8 @@ constexpr uint16_t NET_CHANNELS = 4;
 constexpr uint16_t SPRITE_CHANNEL = 1;
 constexpr uint16_t CONTENT_CHANNEL = 3;
 
+constexpr float FONT_PIXELS = 64.0f;
+constexpr int FONT_SDF_PADDING = 10;
+constexpr int FONT_SDF_SCALE = 20;
+
 #endif
