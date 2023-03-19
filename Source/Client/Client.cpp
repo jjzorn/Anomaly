@@ -52,32 +52,37 @@ bool Client::update(Renderer& renderer) {
 }
 
 void Client::update_content(Renderer& renderer, ENetPacket* packet) {
-	uint16_t id = read16(packet->data + 1);
-	uint32_t length = read32(packet->data + 3);
+	uint32_t id = read32(packet->data + 1);
+	uint32_t length = read32(packet->data + 5);
 	if (packet->data[0] == static_cast<uint8_t>(ContentType::IMAGE)) {
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (image ID %u)", id);
-		renderer.load_image(id, packet->data + 7, length);
+		renderer.load_image(id, packet->data + 9, length);
 	}
 	else if (packet->data[0] == static_cast<uint8_t>(ContentType::FONT)) {
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (font ID %u)", id);
-		renderer.load_font(id, packet->data + 7, length);
+		renderer.load_font(id, packet->data + 9, length);
 	}
 }
 
 void Client::draw(Renderer& renderer, ENetPacket* packet) {
 	renderer.clear(0.0f, 0.0f, 0.0f);
 	uint32_t length = read32(packet->data);
+	uint8_t* data = packet->data + 4;
 	for (uint32_t i = 0; i < length; ++i) {
-		uint32_t offset = 4 + i * sizeof(Sprite);
-		if ((i + 1) * sizeof(Sprite) > packet->dataLength) {
-			return;
+		uint32_t id = read32(data);
+		float x = read_float(data + 4);
+		float y = read_float(data + 8);
+		float scale = read_float(data + 12);
+		if (id & 0x80000000) {
+			uint32_t length = read32(data + 16);
+			renderer.draw_text(id & ~0x80000000, x, y, scale, data + 20, length);
+			data += 20;
+			data += length;
 		}
-		uint16_t texture = read16(packet->data + offset);
-		int16_t x = static_cast<int16_t>(read16(packet->data + offset + 2));
-		int16_t y = static_cast<int16_t>(read16(packet->data + offset + 4));
-		uint16_t scale = read16(packet->data + offset + 6);
-		renderer.draw_sprite(texture, x, y, scale);
+		else {
+			renderer.draw_sprite(id, x, y, scale);
+			data += 16;
+		}
 	}
-	renderer.draw_text(0, -10000, 0, 10000, "Server.cpp");
 	renderer.present();
 }

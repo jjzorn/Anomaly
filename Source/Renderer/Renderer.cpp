@@ -112,7 +112,7 @@ void Renderer::present() {
 	window->present();
 }
 
-void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
+void Renderer::load_image(uint32_t id, const uint8_t* data, uint32_t length) {
 	if (textures.size() <= id) {
 		textures.resize(id + 1);
 	}
@@ -148,7 +148,7 @@ void Renderer::load_image(uint16_t id, const uint8_t* data, uint32_t length) {
 	stbi_image_free(image_data);
 }
 
-void Renderer::load_font(uint16_t id, const uint8_t* data, uint32_t length) {
+void Renderer::load_font(uint32_t id, const uint8_t* data, uint32_t length) {
 	if (fonts.size() <= id) {
 		fonts.resize(id + 1);
 	}
@@ -156,10 +156,14 @@ void Renderer::load_font(uint16_t id, const uint8_t* data, uint32_t length) {
 	int offset = stbtt_GetFontOffsetForIndex(fonts[id].buffer.data(), 0);
 	if (stbtt_InitFont(&fonts[id].info, fonts[id].buffer.data(), offset)) {
 		fonts[id].init = true;
+		float scale = stbtt_ScaleForPixelHeight(&fonts[id].info, FONT_PIXELS);
+		int ascent, descent;
+		stbtt_GetFontVMetrics(&fonts[id].info, &ascent, &descent, nullptr);
+		fonts[id].offset = scale * (ascent + descent) / 2.0f;
 	}
 }
 
-void Renderer::draw_sprite(uint16_t id, int16_t x, int16_t y, uint16_t scale) {
+void Renderer::draw_sprite(uint32_t id, float x, float y, float scale) {
 	if (id >= textures.size() || !textures[id].init) {
 		return;
 	}
@@ -170,15 +174,12 @@ void Renderer::draw_sprite(uint16_t id, int16_t x, int16_t y, uint16_t scale) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textures[id].texture);
 
-	float yscale = scale / 10000.0f;
-	float xscale = yscale / window_aspect_ratio * texture_aspect_ratio;
-
-	float middle_x = x / 10000.0f / window_aspect_ratio;
-	float middle_y = y / 10000.0f;
+	float xscale = scale / window_aspect_ratio * texture_aspect_ratio;
+	x /= window_aspect_ratio;
 
 	sprite_shader.use();
-	sprite_shader.set(sprite_shader_pos, middle_x - xscale / 2.0f, middle_y - yscale / 2.0f);
-	sprite_shader.set(sprite_shader_scale, xscale, yscale);
+	sprite_shader.set(sprite_shader_pos, x - xscale / 2.0f, y - scale / 2.0f);
+	sprite_shader.set(sprite_shader_scale, xscale, scale);
 
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -188,31 +189,30 @@ void Renderer::draw_sprite(uint16_t id, int16_t x, int16_t y, uint16_t scale) {
 	glUseProgram(0);
 }
 
-void Renderer::draw_text(uint16_t id, int16_t x, int16_t y, uint16_t scale, const char* text) {
+void Renderer::draw_text(uint32_t id, float x, float y, float scale, const uint8_t* text, uint32_t length) {
 	if (id >= fonts.size() || !fonts[id].init) {
 		return;
 	}
 
 	float window_aspect_ratio = static_cast<float>(window->width()) / static_cast<float>(window->height());
 
-	float yscale = scale / 10000.0f / FONT_PIXELS;
+	float yscale = scale / FONT_PIXELS;
 	float xscale = yscale / window_aspect_ratio;
 
-	float pos = x / 10000.0f;
-	float baseline = y / 10000.0f - scale / 20000.0f;
-
-	SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "y / 10000.0f = %f, yscale = %f", y / 10000.0f, yscale);
+	x /= window_aspect_ratio;
+	
+	float baseline = y - yscale * fonts[id].offset;
 
 	font_shader.use();
 
-	while (*text) {
-		uint32_t codepoint = *(text++);
+	for (uint32_t i = 0; i < length; ++i) {
+		uint32_t codepoint = text[i];
 		Glyph& glyph = load_glyph(id, codepoint);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, glyph.texture);
 
-		float left = pos + glyph.left * xscale;
+		float left = x + glyph.left * xscale;
 		float bottom = baseline + glyph.bottom * yscale;
 
 		font_shader.set(font_shader_pos, left, bottom);
@@ -225,13 +225,13 @@ void Renderer::draw_text(uint16_t id, int16_t x, int16_t y, uint16_t scale, cons
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		pos += glyph.advance * xscale;
+		x += glyph.advance * xscale;
 	}
 
 	glUseProgram(0);
 }
 
-Renderer::Glyph& Renderer::load_glyph(uint16_t id, uint32_t codepoint) {
+Renderer::Glyph& Renderer::load_glyph(uint32_t id, uint32_t codepoint) {
 	Font& font = fonts[id];
 	auto it = font.glyphs.find(codepoint);
 	if (it != font.glyphs.end()) {

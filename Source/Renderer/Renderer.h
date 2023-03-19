@@ -25,11 +25,11 @@ public:
 	void clear(float r, float g, float b);
 	void present();
 
-	void load_image(uint16_t id, const uint8_t* data, uint32_t length);
-	void load_font(uint16_t id, const uint8_t* data, uint32_t length);
+	void load_image(uint32_t id, const uint8_t* data, uint32_t length);
+	void load_font(uint32_t id, const uint8_t* data, uint32_t length);
 
-	void draw_sprite(uint16_t id, int16_t x, int16_t y, uint16_t scale);
-	void draw_text(uint16_t id, int16_t x, int16_t y, uint16_t scale, const char* text);
+	void draw_sprite(uint32_t id, float x, float y, float scale);
+	void draw_text(uint32_t id, float x, float y, float scale, const uint8_t* text, uint32_t length);
 
 private:
 	Window* window;
@@ -61,13 +61,14 @@ private:
 		std::vector<uint8_t> buffer;
 		stbtt_fontinfo info;
 		std::unordered_map<uint32_t, Glyph> glyphs;
+		float offset;
 		bool init = false;
 	};
 
 	std::vector<Texture> textures;
 	std::vector<Font> fonts;
 
-	Glyph& load_glyph(uint16_t id, uint32_t codepoint);
+	Glyph& load_glyph(uint32_t id, uint32_t codepoint);
 };
 
 #endif

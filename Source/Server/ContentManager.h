@@ -23,7 +23,7 @@ private:
 	struct Image {
 		std::vector<uint8_t> data;
 		std::filesystem::file_time_type last_write;
-		uint16_t id;
+		uint32_t id;
 		uint16_t width;
 		uint16_t height;
 	};
@@ -32,13 +32,13 @@ private:
 		std::vector<uint8_t> data;
 		stbtt_fontinfo info;
 		std::filesystem::file_time_type last_write;
-		uint16_t id;
+		uint32_t id;
 	};
 
-	uint16_t image_id = 0;
+	uint32_t image_id = 0;
 	std::unordered_map<std::filesystem::path, Image> images;
 
-	uint16_t font_id = 0;
+	uint32_t font_id = 0;
 	std::unordered_map<std::filesystem::path, Font> fonts;
 };
 
