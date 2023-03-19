@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project("Anomaly")
 
-if(WIN32)
+if(MSVC)
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
