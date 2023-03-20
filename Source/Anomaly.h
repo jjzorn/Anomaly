@@ -54,6 +54,7 @@ constexpr uint64_t CONTENT_RELOAD = 1000;
 
 constexpr uint16_t MAX_CLIENTS = 64;
 constexpr uint16_t NET_CHANNELS = 4;
+constexpr uint16_t INPUT_CHANNEL = 0;
 constexpr uint16_t SPRITE_CHANNEL = 1;
 constexpr uint16_t CONTENT_CHANNEL = 3;
 

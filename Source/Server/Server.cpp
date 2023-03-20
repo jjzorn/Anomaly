@@ -41,6 +41,7 @@ void Server::update(ContentManager& content) {
 			clients[peer_id].connected = false;
 			break;
 		case ENET_EVENT_TYPE_RECEIVE:
+			client_input(clients[peer_id], event.packet);
 			enet_packet_destroy(event.packet);
 			break;
 		}
@@ -103,4 +104,16 @@ ENetPacket* Server::create_content_packet(ContentType type, uint32_t id, const s
 	write32(packet->data + 5, data.size());
 	memcpy(packet->data + 9, data.data(), data.size());
 	return packet;
+}
+
+void Server::client_input(Client& client, ENetPacket* input_packet) {
+	uint8_t* data = input_packet->data;
+	uint32_t length = read32(data);
+	data += 4;
+	for (uint32_t i = 0; i < length; ++i) {
+		int32_t key = read32(data);
+		bool down = data[4];
+		data += 5;
+		std::cout << "Key " << key << " down: " << down << '\n';
+	}
 }

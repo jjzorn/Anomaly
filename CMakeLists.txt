@@ -18,6 +18,7 @@ add_subdirectory("3rdParty/stb")
 set(CLIENT_SOURCE_FILES
 	"Source/Client/Client.cpp"
 	"Source/Client/Main.cpp"
+	"Source/Renderer/Input.cpp"
 	"Source/Renderer/Renderer.cpp"
 	"Source/Renderer/Shader.cpp"
 	"Source/Renderer/Window.cpp"

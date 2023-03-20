@@ -75,6 +75,12 @@ bool Window::update() {
 				break;
 			}
 			break;
+		case SDL_KEYDOWN:
+			input.key_events.push_back({ event.key.keysym.sym, true });
+			break;
+		case SDL_KEYUP:
+			input.key_events.push_back({ event.key.keysym.sym, false });
+			break;
 		}
 	}
 	return true;
@@ -94,4 +100,8 @@ int Window::height() const {
 	int height;
 	SDL_GL_GetDrawableSize(window, nullptr, &height);
 	return height;
+}
+
+ENetPacket* Window::create_input_packet() {
+	return input.create_input_packet();
 }

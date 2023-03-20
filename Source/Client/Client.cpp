@@ -48,6 +48,8 @@ bool Client::update(Renderer& renderer) {
 			break;
 		}
 	}
+	ENetPacket* input_packet = renderer.get_window().create_input_packet();
+	enet_peer_send(peer, INPUT_CHANNEL, input_packet);
 	return true;
 }
 

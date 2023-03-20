@@ -23,10 +23,10 @@ int main(int argc, char* argv[]) {
 		uint64_t duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_content_update).count();
 		if (duration >= CONTENT_RELOAD) {
 			last_content_update = now;
-			content.reload(server);
+			//content.reload(server);
 		}
 		duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
-		if (duration >= 50) {
+		if (duration >= 33) {
 			last_update = now;
 			server.update(content);
 		}

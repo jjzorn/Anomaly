@@ -7,6 +7,8 @@
 
 #include <SDL.h>
 
+#include <Renderer/Input.h>
+
 class Window {
 public:
 	Window();
@@ -23,9 +25,13 @@ public:
 	int width() const;
 	int height() const;
 
+	ENetPacket* create_input_packet();
+
 private:
 	SDL_Window* window = nullptr;
 	SDL_GLContext context = nullptr;
+
+	Input input;
 };
 
 #endif

@@ -37,6 +37,8 @@ private:
 
 	ENetPacket* create_sprite_packet(Client& client);
 	static ENetPacket* create_content_packet(ContentType type, uint32_t id, const std::vector<uint8_t>& data);
+
+	void client_input(Client& client, ENetPacket* input_packet);
 };
 
 #endif
