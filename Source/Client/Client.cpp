@@ -32,6 +32,10 @@ Client::~Client() {
 }
 
 bool Client::update(Renderer& renderer) {
+	ENetPacket* input_packet = renderer.get_window().create_input_packet();
+	if (input_packet) {
+		enet_peer_send(peer, INPUT_CHANNEL, input_packet);
+	}
 	ENetEvent event;
 	while (enet_host_service(host, &event, 0) > 0) {
 		switch (event.type) {
@@ -48,8 +52,6 @@ bool Client::update(Renderer& renderer) {
 			break;
 		}
 	}
-	ENetPacket* input_packet = renderer.get_window().create_input_packet();
-	enet_peer_send(peer, INPUT_CHANNEL, input_packet);
 	return true;
 }
 

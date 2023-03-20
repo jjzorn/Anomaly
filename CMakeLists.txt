@@ -14,6 +14,7 @@ add_subdirectory("3rdParty/enet")
 add_subdirectory("3rdParty/glad")
 add_subdirectory("3rdParty/SDL")
 add_subdirectory("3rdParty/stb")
+add_subdirectory("3rdParty/lua")
 
 set(CLIENT_SOURCE_FILES
 	"Source/Client/Client.cpp"
@@ -27,6 +28,7 @@ set(CLIENT_SOURCE_FILES
 set(SERVER_SOURCE_FILES
 	"Source/Server/ContentManager.cpp"
 	"Source/Server/Main.cpp"
+	"Source/Server/Script.cpp"
 	"Source/Server/Server.cpp"
 )
 
@@ -46,7 +48,7 @@ else()
 	target_link_libraries("Anomaly" "enet_static" "glad" "SDL2main" "SDL2-static" "stb")
 	target_include_directories("Anomaly" PRIVATE "Source")
 
-	target_link_libraries("AnomalyServer" "enet_static" "stb")
+	target_link_libraries("AnomalyServer" "enet_static" "stb" "lua")
 	target_include_directories("AnomalyServer" PRIVATE "Source")
 	target_compile_features("AnomalyServer" PRIVATE cxx_std_17)
 endif()

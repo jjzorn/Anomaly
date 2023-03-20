@@ -22,7 +22,7 @@ Server::~Server() {
 	enet_host_destroy(host);
 }
 
-void Server::update(ContentManager& content) {
+void Server::update(ContentManager& content, Script& script) {
 	ENetEvent event;
 	while (enet_host_service(host, &event, 0) > 0) {
 		uint16_t peer_id = event.peer->incomingPeerID;
@@ -41,7 +41,9 @@ void Server::update(ContentManager& content) {
 			clients[peer_id].connected = false;
 			break;
 		case ENET_EVENT_TYPE_RECEIVE:
-			client_input(clients[peer_id], event.packet);
+			if (clients[peer_id].connected) {
+				client_input(peer_id, event.packet, script);
+			}
 			enet_packet_destroy(event.packet);
 			break;
 		}
@@ -109,7 +111,7 @@ ENetPacket* Server::create_content_packet(ContentType type, uint32_t id, const s
 	return packet;
 }
 
-void Server::client_input(Client& client, ENetPacket* input_packet) {
+void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& script) {
 	uint8_t* data = input_packet->data;
 	uint32_t length = read32(data);
 	data += 4;
@@ -117,6 +119,6 @@ void Server::client_input(Client& client, ENetPacket* input_packet) {
 		int32_t key = read32(data);
 		bool down = data[4];
 		data += 5;
-		std::cout << "Key " << key << " down: " << down << '\n';
+		script.on_key_event(client, key, down);
 	}
 }

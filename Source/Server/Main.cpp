@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <Server/ContentManager.h>
+#include <Server/Script.h>
 #include <Server/Server.h>
 
 int main(int argc, char* argv[]) {
@@ -15,6 +16,8 @@ int main(int argc, char* argv[]) {
 	ContentManager content;
 	Server server(17899);
 	content.reload(server);
+
+	Script script(server, "Content/Scripts/main.lua");
 
 	auto last_content_update = std::chrono::high_resolution_clock::now();
 	auto last_update = last_content_update;
@@ -28,7 +31,7 @@ int main(int argc, char* argv[]) {
 		duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
 		if (duration >= 33) {
 			last_update = now;
-			server.update(content);
+			server.update(content, script);
 		}
 	}
 

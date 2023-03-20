@@ -8,6 +8,7 @@
 #include <enet.h>
 
 #include <Anomaly.h>
+#include <Server/Script.h>
 
 class ContentManager;
 
@@ -19,7 +20,7 @@ public:
 
 	Server& operator=(const Server&) = delete;
 
-	void update(ContentManager& content);
+	void update(ContentManager& content, Script& script);
 
 	void update_client_content(uint16_t client, ContentType type, uint32_t id, const std::vector<uint8_t>& data);
 	void update_content(ContentType type, uint32_t id, const std::vector<uint8_t>& data);
@@ -38,7 +39,7 @@ private:
 	ENetPacket* create_sprite_packet(Client& client);
 	static ENetPacket* create_content_packet(ContentType type, uint32_t id, const std::vector<uint8_t>& data);
 
-	void client_input(Client& client, ENetPacket* input_packet);
+	void client_input(uint16_t client, ENetPacket* input_packet, Script& script);
 };
 
 #endif
