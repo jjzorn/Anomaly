@@ -12,8 +12,15 @@ struct KeyEvent {
 	bool down;
 };
 
+struct TouchEvent {
+	float x, y;
+	uint8_t finger;
+	bool down;
+};
+
 struct Input {
 	std::vector<KeyEvent> key_events;
+	std::vector<TouchEvent> touch_events;
 
 	ENetPacket* create_input_packet();
 };

@@ -53,6 +53,11 @@ void Server::update(ContentManager& content, Script& script) {
 		if (!client.connected) continue;
 		ENetPacket* packet = create_sprite_packet(client);
 		enet_peer_send(client.peer, SPRITE_CHANNEL, packet);
+		if (client.commands.size() > 0) {
+			packet = create_command_packet(client);
+			enet_peer_send(client.peer, COMMAND_CHANNEL, packet);
+			client.commands.clear();
+		}
 	}
 }
 
@@ -64,6 +69,22 @@ void Server::update_client_content(uint16_t client, ContentType type, uint32_t i
 void Server::update_content(ContentType type, uint32_t id, const std::vector<uint8_t>& data) {
 	ENetPacket* packet = create_content_packet(type, id, data);
 	enet_host_broadcast(host, CONTENT_CHANNEL, packet);
+}
+
+bool Server::start_text_input(uint16_t client) {
+	if (client < clients.size() && clients[client].connected) {
+		clients[client].commands.push_back({ Command::Type::START_TEXT_INPUT });
+		return true;
+	}
+	return false;
+}
+
+bool Server::stop_text_input(uint16_t client) {
+	if (client < clients.size() && clients[client].connected) {
+		clients[client].commands.push_back({ Command::Type::STOP_TEXT_INPUT });
+		return true;
+	}
+	return false;
 }
 
 ENetPacket* Server::create_sprite_packet(Client& client) {
@@ -102,6 +123,17 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 	return packet;
 }
 
+ENetPacket* Server::create_command_packet(Client& client) {
+	uint32_t size = 4 + client.commands.size();
+	ENetPacket* packet = enet_packet_create(nullptr, size, 0);
+	write32(packet->data, static_cast<uint32_t>(client.commands.size()));
+	uint8_t* data = packet->data + 4;
+	for (const Command& command : client.commands) {
+		*(data++) = static_cast<uint8_t>(command.type);
+	}
+	return packet;
+}
+
 ENetPacket* Server::create_content_packet(ContentType type, uint32_t id, const std::vector<uint8_t>& data) {
 	ENetPacket* packet = enet_packet_create(nullptr, 9 + data.size(), ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED);
 	packet->data[0] = static_cast<uint8_t>(type);
@@ -120,5 +152,14 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		bool down = data[4];
 		data += 5;
 		script.on_key_event(client, key, down);
+	}
+	length = read32(data);
+	data += 4;
+	for (uint32_t i = 0; i < length; ++i) {
+		float x = read_float(data);
+		float y = read_float(data + 4);
+		uint8_t finger = data[8];
+		bool down = data[9];
+		script.on_touch_event(client, x, y, finger, down);
 	}
 }

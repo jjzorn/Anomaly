@@ -81,6 +81,16 @@ bool Window::update() {
 		case SDL_KEYUP:
 			input.key_events.push_back({ event.key.keysym.sym, false });
 			break;
+		case SDL_FINGERDOWN:
+			input.touch_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+				-event.tfinger.y * 2.0f + 1.0f,
+				static_cast<uint8_t>(event.tfinger.fingerId), true });
+			break;
+		case SDL_FINGERUP:
+			input.touch_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+				-event.tfinger.y * 2.0f + 1.0f,
+				static_cast<uint8_t>(event.tfinger.fingerId), false });
+			break;
 		}
 	}
 	return true;
@@ -90,18 +100,20 @@ void Window::present() {
 	SDL_GL_SwapWindow(window);
 }
 
-int Window::width() const {
-	int width;
-	SDL_GL_GetDrawableSize(window, &width, nullptr);
-	return width;
-}
-
-int Window::height() const {
-	int height;
-	SDL_GL_GetDrawableSize(window, nullptr, &height);
-	return height;
+float Window::aspect_ratio() const {
+	int width, height;
+	SDL_GL_GetDrawableSize(window, &width, &height);
+	return static_cast<float>(width) / static_cast<float>(height);
 }
 
 ENetPacket* Window::create_input_packet() {
 	return input.create_input_packet();
+}
+
+void Window::start_text_input() {
+	SDL_StartTextInput();
+}
+
+void Window::stop_text_input() {
+	SDL_StopTextInput();
 }

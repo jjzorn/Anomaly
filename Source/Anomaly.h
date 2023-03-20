@@ -18,6 +18,13 @@ struct Sprite {
 	std::string text;
 };
 
+struct Command {
+	enum class Type {
+		START_TEXT_INPUT,
+		STOP_TEXT_INPUT
+	} type;
+};
+
 inline void write16(uint8_t* area, uint16_t i) {
 	area[0] = (i & 0xFF00) >> 8;
 	area[1] = (i & 0x00FF);
@@ -56,7 +63,8 @@ constexpr uint64_t CONTENT_RELOAD = 1000;
 constexpr uint16_t MAX_CLIENTS = 64;
 constexpr uint16_t NET_CHANNELS = 4;
 constexpr uint16_t INPUT_CHANNEL = 0;
-constexpr uint16_t SPRITE_CHANNEL = 1;
+constexpr uint16_t COMMAND_CHANNEL = 1;
+constexpr uint16_t SPRITE_CHANNEL = 2;
 constexpr uint16_t CONTENT_CHANNEL = 3;
 
 constexpr float FONT_PIXELS = 64.0f;

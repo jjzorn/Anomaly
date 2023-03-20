@@ -22,10 +22,12 @@ public:
 	bool update();
 	void present();
 
-	int width() const;
-	int height() const;
+	float aspect_ratio() const;
 
 	ENetPacket* create_input_packet();
+
+	void start_text_input();
+	void stop_text_input();
 
 private:
 	SDL_Window* window = nullptr;

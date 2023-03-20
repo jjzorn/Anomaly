@@ -58,6 +58,8 @@ Script::~Script() {
 }
 
 void Script::reload(const std::string& path) {
+	register_callback("start_text_input", start_text_input);
+	register_callback("stop_text_input", stop_text_input);
 	if (luaL_dofile(L, path.c_str()) != LUA_OK) {
 		std::cerr << "ERROR: Could not load lua file '" << path << "': " << lua_tostring(L, -1) << '\n';
 		return;
@@ -82,10 +84,48 @@ void Script::on_key_event(uint16_t client, int32_t key, bool down) {
 	lua_settop(L, 0);
 }
 
+void Script::on_touch_event(uint16_t client, float x, float y, uint8_t finger, bool down) {
+	if (get_function("on_touch_event")) {
+		lua_pushinteger(L, client);
+		lua_pushnumber(L, x);
+		lua_pushnumber(L, y);
+		lua_pushinteger(L, finger);
+		lua_pushboolean(L, down);
+		if (lua_pcall(L, 5, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_touch_event: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+int Script::start_text_input(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	uint16_t client = luaL_checkinteger(L, 1);
+	if (!script->server->start_text_input(client)) {
+		luaL_error(L, "Client %d is not online", client);
+	}
+	return 0;
+}
+
+int Script::stop_text_input(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	uint16_t client = luaL_checkinteger(L, 1);
+	if (!script->server->stop_text_input(client)) {
+		luaL_error(L, "Client %d is not online", client);
+	}
+	return 0;
+}
+
 bool Script::get_function(const char* name) {
 	lua_getglobal(L, name);
 	if (lua_isnil(L, -1)) {
 		return false;
 	}
 	return true;
+}
+
+void Script::register_callback(const char* name, lua_CFunction callback) {
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, callback, 1);
+	lua_setglobal(L, name);
 }

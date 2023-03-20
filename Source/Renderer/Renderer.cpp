@@ -168,7 +168,7 @@ void Renderer::draw_sprite(uint32_t id, float x, float y, float scale) {
 		return;
 	}
 
-	float window_aspect_ratio = static_cast<float>(window->width()) / static_cast<float>(window->height());
+	float window_aspect_ratio = window->aspect_ratio();
 	float texture_aspect_ratio = static_cast<float>(textures[id].width) / static_cast<float>(textures[id].height);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -195,7 +195,7 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, uint8_t r, 
 		return;
 	}
 
-	float window_aspect_ratio = static_cast<float>(window->width()) / static_cast<float>(window->height());
+	float window_aspect_ratio = window->aspect_ratio();
 
 	float yscale = scale / FONT_PIXELS;
 	float xscale = yscale / window_aspect_ratio;

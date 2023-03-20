@@ -24,8 +24,9 @@ private:
 	ENetHost* host = nullptr;
 	ENetPeer* peer = nullptr;
 
-	void update_content(Renderer& window, ENetPacket* packet);
 	void draw(Renderer& renderer, ENetPacket* packet);
+	void handle_commands(Renderer& renderer, ENetPacket* packet);
+	void update_content(Renderer& window, ENetPacket* packet);
 };
 
 #endif
