@@ -23,6 +23,7 @@ public:
 	void set(GLint location, float x);
 	void set(GLint location, float x, float y);
 	void set(GLint location, float x, float y, float z);
+	void set(GLint location, float x, float y, float z, float w);
 
 private:
 	GLuint program;

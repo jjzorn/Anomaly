@@ -14,6 +14,7 @@ struct Sprite {
 	bool is_text;
 	uint32_t id;
 	float x, y, scale;
+	uint8_t r, g, b;
 	std::string text;
 };
 

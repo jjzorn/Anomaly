@@ -31,8 +31,8 @@ void Server::update(ContentManager& content) {
 			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
-			clients[peer_id].sprites.push_back({ 0, 0, -1.0f, 0.0f, 1.0f });
-			clients[peer_id].sprites.push_back({ 1, 0, -1.0f, 0.0f, 0.5f, "Hello, world!" });
+			clients[peer_id].sprites.push_back({ 0, 0, -1.0f, 0.0f, 1.0f, 0, 0, 0 });
+			clients[peer_id].sprites.push_back({ 1, 0, -1.0f, 0.0f, 0.5f, 0, 255, 0, "Hello, world!" });
 			content.init_client(*this, peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
@@ -68,7 +68,7 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 	uint32_t size = 4;
 	for (const Sprite& sprite : client.sprites) {
 		if (sprite.is_text) {
-			size += 20;
+			size += 23;
 			size += sprite.text.length();
 		}
 		else {
@@ -84,9 +84,12 @@ ENetPacket* Server::create_sprite_packet(Client& client) {
 		write_float(data + 12, sprite.scale);
 		if (sprite.is_text) {
 			write32(data, sprite.id | 0x80000000);
-			write32(data + 16, static_cast<uint32_t>(sprite.text.length()));
-			memcpy(data + 20, sprite.text.data(), sprite.text.length());
-			data += 20;
+			data[16] = sprite.r;
+			data[17] = sprite.g;
+			data[18] = sprite.b;
+			write32(data + 19, static_cast<uint32_t>(sprite.text.length()));
+			memcpy(data + 23, sprite.text.data(), sprite.text.length());
+			data += 23;
 			data += sprite.text.length();
 		}
 		else {

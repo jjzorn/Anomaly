@@ -29,7 +29,8 @@ public:
 	void load_font(uint32_t id, const uint8_t* data, uint32_t length);
 
 	void draw_sprite(uint32_t id, float x, float y, float scale);
-	void draw_text(uint32_t id, float x, float y, float scale, const uint8_t* text, uint32_t length);
+	void draw_text(uint32_t id, float x, float y, float scale, uint8_t r, uint8_t g, uint8_t b,
+		const uint8_t* text, uint32_t length);
 
 private:
 	Window* window;

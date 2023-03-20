@@ -189,7 +189,8 @@ void Renderer::draw_sprite(uint32_t id, float x, float y, float scale) {
 	glUseProgram(0);
 }
 
-void Renderer::draw_text(uint32_t id, float x, float y, float scale, const uint8_t* text, uint32_t length) {
+void Renderer::draw_text(uint32_t id, float x, float y, float scale, uint8_t r, uint8_t g,
+	uint8_t b, const uint8_t* text, uint32_t length) {
 	if (id >= fonts.size() || !fonts[id].init) {
 		return;
 	}
@@ -204,6 +205,7 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, const uint8
 	float baseline = y - yscale * fonts[id].offset;
 
 	font_shader.use();
+	font_shader.set(font_shader_color, r / 255.0f, g / 255.0f, b / 255.0f);
 
 	for (uint32_t i = 0; i < length; ++i) {
 		uint32_t codepoint = text[i];
@@ -217,7 +219,6 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, const uint8
 
 		font_shader.set(font_shader_pos, left, bottom);
 		font_shader.set(font_shader_scale, glyph.width * xscale, glyph.height * yscale);
-		font_shader.set(font_shader_color, 1.0f, 0.0f, 0.0f);
 
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

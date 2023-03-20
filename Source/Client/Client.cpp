@@ -76,9 +76,13 @@ void Client::draw(Renderer& renderer, ENetPacket* packet) {
 		float y = read_float(data + 8);
 		float scale = read_float(data + 12);
 		if (id & 0x80000000) {
-			uint32_t length = read32(data + 16);
-			renderer.draw_text(id & ~0x80000000, x, y, scale, data + 20, length);
-			data += 20;
+			uint8_t r, g, b;
+			r = data[16];
+			g = data[17];
+			b = data[18];
+			uint32_t length = read32(data + 19);
+			renderer.draw_text(id & ~0x80000000, x, y, scale, r, g, b, data + 23, length);
+			data += 23;
 			data += length;
 		}
 		else {

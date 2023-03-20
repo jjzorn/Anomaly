@@ -72,3 +72,7 @@ void Shader::set(GLint location, float x, float y) {
 void Shader::set(GLint location, float x, float y, float z) {
 	glUniform3f(location, x, y, z);
 }
+
+void Shader::set(GLint location, float x, float y, float z, float w) {
+	glUniform4f(location, x, y, z, w);
+}
