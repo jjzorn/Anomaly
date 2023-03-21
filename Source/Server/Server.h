@@ -28,6 +28,8 @@ public:
 
 	bool start_text_input(uint16_t client);
 	bool stop_text_input(uint16_t client);
+	const char* get_composition(uint16_t client);
+	bool set_composition(uint16_t client, std::string composition);
 
 	int draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale);
 	int draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
@@ -44,6 +46,7 @@ private:
 		ENetPeer* peer;
 		std::vector<Sprite> sprites;
 		std::vector<Command> commands;
+		std::string composition;
 	};
 
 	std::vector<Client> clients;

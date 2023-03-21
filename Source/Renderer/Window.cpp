@@ -91,6 +91,9 @@ bool Window::update() {
 				-event.tfinger.y * 2.0f + 1.0f,
 				static_cast<uint8_t>(event.tfinger.fingerId), false });
 			break;
+		case SDL_TEXTINPUT:
+			input.textinput += event.text.text;
+			break;
 		}
 	}
 	return true;

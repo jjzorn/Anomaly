@@ -21,6 +21,7 @@ struct TouchEvent {
 struct Input {
 	std::vector<KeyEvent> key_events;
 	std::vector<TouchEvent> touch_events;
+	std::string textinput;
 
 	ENetPacket* create_input_packet();
 };

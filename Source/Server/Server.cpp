@@ -86,6 +86,21 @@ bool Server::stop_text_input(uint16_t client) {
 	return true;
 }
 
+const char* Server::get_composition(uint16_t client) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return nullptr;
+	}
+	return clients[client].composition.c_str();
+}
+
+bool Server::set_composition(uint16_t client, std::string composition) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return false;
+	}
+	clients[client].composition = composition;
+	return true;
+}
+
 int Server::draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale) {
 	if (client >= clients.size() || !clients[client].connected) {
 		return 1;
@@ -179,10 +194,17 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 	uint8_t* data = input_packet->data;
 	uint32_t length = read32(data);
 	data += 4;
+	clients[client].composition.append(reinterpret_cast<const char*>(data), length);
+	data += length;
+	length = read32(data);
+	data += 4;
 	for (uint32_t i = 0; i < length; ++i) {
 		int32_t key = read32(data);
 		bool down = data[4];
 		data += 5;
+		if (key == 8 && down && clients[client].composition.length() > 0) {
+			clients[client].composition.pop_back();
+		}
 		script.on_key_event(client, key, down);
 	}
 	length = read32(data);
@@ -192,6 +214,7 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		float y = read_float(data + 4);
 		uint8_t finger = data[8];
 		bool down = data[9];
+		data += 10;
 		script.on_touch_event(client, x, y, finger, down);
 	}
 }

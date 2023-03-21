@@ -92,11 +92,9 @@ void Client::handle_commands(Renderer& renderer, ENetPacket* packet) {
 	for (uint32_t i = 0; i < size; ++i) {
 		uint8_t type = data[i];
 		if (type == static_cast<uint8_t>(Command::Type::START_TEXT_INPUT)) {
-			SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Started text input");
 			renderer.get_window().start_text_input();
 		}
 		else if (type == static_cast<uint8_t>(Command::Type::STOP_TEXT_INPUT)) {
-			SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Stopped text input");
 			renderer.get_window().stop_text_input();
 		}
 	}
