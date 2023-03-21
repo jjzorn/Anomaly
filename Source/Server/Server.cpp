@@ -22,20 +22,20 @@ Server::~Server() {
 	enet_host_destroy(host);
 }
 
-void Server::update(Script& script) {
+void Server::update(Script& script, double dt) {
 	ENetEvent event;
 	while (enet_host_service(host, &event, 0) > 0) {
 		uint16_t peer_id = event.peer->incomingPeerID;
 		switch (event.type) {
 		case ENET_EVENT_TYPE_CONNECT:
-			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
 			content->init_client(*this, peer_id);
+			script.on_join(peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
 		case ENET_EVENT_TYPE_DISCONNECT:
-			std::cout << "INFO: Client disconnected (ID " << peer_id << ")\n";
+			script.on_quit(peer_id);
 			clients[peer_id].connected = false;
 			break;
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -46,7 +46,7 @@ void Server::update(Script& script) {
 			break;
 		}
 	}
-	script.on_tick(0.016f);
+	script.on_tick(dt);
 	for (Client& client : clients) {
 		if (!client.connected) continue;
 		ENetPacket* packet = create_sprite_packet(client);
@@ -109,6 +109,14 @@ int Server::draw_text(uint16_t client, const std::string& path, float x, float y
 	}
 	clients[client].sprites.push_back({ true, id, x, y, scale, r, g, b, text });
 	return 0;
+}
+
+bool Server::kick(uint16_t client) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return false;
+	}
+	enet_peer_disconnect(clients[client].peer, 0);
+	return true;
 }
 
 ENetPacket* Server::create_sprite_packet(Client& client) {

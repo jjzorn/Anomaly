@@ -21,10 +21,11 @@ int main(int argc, char* argv[]) {
 	auto last_update = std::chrono::high_resolution_clock::now();
 	while (true) {
 		auto now = std::chrono::high_resolution_clock::now();
-		uint64_t duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
-		if (duration >= 33) {
+		double duration = std::chrono::duration_cast<std::chrono::microseconds>(now -
+			last_update).count() / 1000000.0;
+		if (duration >= MINIMUM_FRAME_TIME) {
 			last_update = now;
-			server.update(script);
+			server.update(script, duration);
 		}
 	}
 

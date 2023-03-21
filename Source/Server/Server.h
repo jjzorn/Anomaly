@@ -21,7 +21,7 @@ public:
 
 	Server& operator=(const Server&) = delete;
 
-	void update(Script& script);
+	void update(Script& script, double dt);
 
 	void update_client_content(uint16_t client, ContentType type, uint32_t id, const std::vector<uint8_t>& data);
 	void update_content(ContentType type, uint32_t id, const std::vector<uint8_t>& data);
@@ -32,6 +32,8 @@ public:
 	int draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale);
 	int draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
 		uint8_t r, uint8_t g, uint8_t b, std::string text);
+
+	bool kick(uint16_t client);
 
 private:
 	ContentManager* content;

@@ -71,4 +71,6 @@ constexpr float FONT_PIXELS = 64.0f;
 constexpr int FONT_SDF_PADDING = 10;
 constexpr int FONT_SDF_SCALE = 20;
 
+constexpr double MINIMUM_FRAME_TIME = 0.03;
+
 #endif

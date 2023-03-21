@@ -75,18 +75,49 @@ void Script::reload() {
 	register_callback("stop_text_input", stop_text_input);
 	register_callback("draw_sprite", draw_sprite);
 	register_callback("draw_text", draw_text);
+	register_callback("kick", kick);
 	if (luaL_dofile(L, "Content/Scripts/main.lua") != LUA_OK) {
 		std::cerr << "ERROR: Could not load lua file 'Content/Scripts/main.lua': " <<
 			lua_tostring(L, -1) << '\n';
 		return;
 	}
+	on_reload();
 }
 
-void Script::on_tick(float dt) {
+void Script::on_tick(double dt) {
 	if (get_function("on_tick")) {
 		lua_pushnumber(L, dt);
 		if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
 			std::cerr << "ERROR: Could not call on_tick: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+void Script::on_reload() {
+	if (get_function("on_reload")) {
+		if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_reload: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+void Script::on_join(uint16_t client) {
+	if (get_function("on_join")) {
+		lua_pushinteger(L, client);
+		if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_join: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+void Script::on_quit(uint16_t client) {
+	if (get_function("on_quit")) {
+		lua_pushinteger(L, client);
+		if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_quit: " << lua_tostring(L, -1) << '\n';
 		}
 	}
 	lua_settop(L, 0);
@@ -132,7 +163,7 @@ int Script::lua_reload(lua_State* L) {
 
 int Script::start_text_input(lua_State* L) {
 	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	uint16_t client = luaL_checkinteger(L, 1);
+	int client = luaL_checkinteger(L, 1);
 	if (!script->server->start_text_input(client)) {
 		luaL_error(L, "Client %d is not online", client);
 	}
@@ -141,7 +172,7 @@ int Script::start_text_input(lua_State* L) {
 
 int Script::stop_text_input(lua_State* L) {
 	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	uint16_t client = luaL_checkinteger(L, 1);
+	int client = luaL_checkinteger(L, 1);
 	if (!script->server->stop_text_input(client)) {
 		luaL_error(L, "Client %d is not online", client);
 	}
@@ -150,7 +181,7 @@ int Script::stop_text_input(lua_State* L) {
 
 int Script::draw_sprite(lua_State* L) {
 	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	uint16_t client = luaL_checkinteger(L, 1);
+	int client = luaL_checkinteger(L, 1);
 	std::string path = luaL_checkstring(L, 2);
 	float x = luaL_checknumber(L, 3);
 	float y = luaL_checknumber(L, 4);
@@ -167,7 +198,7 @@ int Script::draw_sprite(lua_State* L) {
 
 int Script::draw_text(lua_State* L) {
 	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	uint16_t client = luaL_checkinteger(L, 1);
+	int client = luaL_checkinteger(L, 1);
 	std::string path = luaL_checkstring(L, 2);
 	float x = luaL_checknumber(L, 3);
 	float y = luaL_checknumber(L, 4);
@@ -182,6 +213,15 @@ int Script::draw_text(lua_State* L) {
 	}
 	else if (result == 2) {
 		luaL_error(L, "Font %s is not loaded", path.c_str());
+	}
+	return 0;
+}
+
+int Script::kick(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	int client = luaL_checkinteger(L, 1);
+	if (!script->server->kick(client)) {
+		luaL_error(L, "Client %d is not online", client);
 	}
 	return 0;
 }

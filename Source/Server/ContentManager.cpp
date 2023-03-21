@@ -83,7 +83,7 @@ void ContentManager::init_client(Server& server, uint16_t client) {
 }
 
 uint32_t ContentManager::get_image_id(const std::string& path) const {
-	std::filesystem::path p = std::filesystem::canonical(path);
+	std::filesystem::path p = std::filesystem::weakly_canonical(path);
 	auto it = images.find(p);
 	if (it != images.end()) {
 		return it->second.id;
@@ -92,7 +92,7 @@ uint32_t ContentManager::get_image_id(const std::string& path) const {
 }
 
 uint32_t ContentManager::get_font_id(const std::string& path) const {
-	std::filesystem::path p = std::filesystem::canonical(path);
+	std::filesystem::path p = std::filesystem::weakly_canonical(path);
 	auto it = fonts.find(p);
 	if (it != fonts.end()) {
 		return it->second.id;
