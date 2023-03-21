@@ -10,7 +10,7 @@ int SDL_main(int argc, char* argv[]) {
 	try {
 		Window window;
 		Renderer renderer(window);
-		Client client("127.0.0.1", 17899, window);
+		Client client("192.168.178.29", 17899, window);
 		while (window.update()) {
 			if (!client.update(renderer)) break;
 		}

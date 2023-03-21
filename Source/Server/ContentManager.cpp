@@ -82,18 +82,20 @@ void ContentManager::init_client(Server& server, uint16_t client) {
 	}
 }
 
-uint16_t ContentManager::get_image_width(const std::filesystem::path& path) const {
-	auto it = images.find(path);
-	if (it == images.end()) {
-		return 0;
+uint32_t ContentManager::get_image_id(const std::string& path) const {
+	std::filesystem::path p = std::filesystem::canonical(path);
+	auto it = images.find(p);
+	if (it != images.end()) {
+		return it->second.id;
 	}
-	return it->second.width;
+	return 0;
 }
 
-uint16_t ContentManager::get_image_height(const std::filesystem::path& path) const {
-	auto it = images.find(path);
-	if (it == images.end()) {
-		return 0;
+uint32_t ContentManager::get_font_id(const std::string& path) const {
+	std::filesystem::path p = std::filesystem::canonical(path);
+	auto it = fonts.find(p);
+	if (it != fonts.end()) {
+		return it->second.id;
 	}
-	return it->second.height;
+	return 0;
 }

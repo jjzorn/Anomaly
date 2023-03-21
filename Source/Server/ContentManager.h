@@ -4,6 +4,7 @@
 #define ANOMALY_SERVER_CONTENT_MANAGER_H
 
 #include <filesystem>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -16,8 +17,8 @@ public:
 	void reload(Server& server);
 	void init_client(Server& server, uint16_t client);
 
-	uint16_t get_image_width(const std::filesystem::path& path) const;
-	uint16_t get_image_height(const std::filesystem::path& path) const;
+	uint32_t get_image_id(const std::string& path) const;
+	uint32_t get_font_id(const std::string& path) const;
 
 private:
 	struct Image {
@@ -35,10 +36,10 @@ private:
 		uint32_t id;
 	};
 
-	uint32_t image_id = 0;
+	uint32_t image_id = 1;
 	std::unordered_map<std::filesystem::path, Image> images;
 
-	uint32_t font_id = 0;
+	uint32_t font_id = 1;
 	std::unordered_map<std::filesystem::path, Font> fonts;
 };
 

@@ -5,7 +5,7 @@
 #include <Server/ContentManager.h>
 #include <Server/Server.h>
 
-Server::Server(uint16_t port) {
+Server::Server(ContentManager& content, uint16_t port) : content{ &content } {
 	clients.resize(MAX_CLIENTS);
 
 	ENetAddress address = { 0 };
@@ -22,7 +22,7 @@ Server::~Server() {
 	enet_host_destroy(host);
 }
 
-void Server::update(ContentManager& content, Script& script) {
+void Server::update(Script& script) {
 	ENetEvent event;
 	while (enet_host_service(host, &event, 0) > 0) {
 		uint16_t peer_id = event.peer->incomingPeerID;
@@ -31,9 +31,7 @@ void Server::update(ContentManager& content, Script& script) {
 			std::cout << "INFO: Client connected (ID " << peer_id << ")\n";
 			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
-			clients[peer_id].sprites.push_back({ 0, 0, -1.0f, 0.0f, 1.0f, 0, 0, 0 });
-			clients[peer_id].sprites.push_back({ 1, 0, -1.0f, 0.0f, 0.5f, 0, 255, 0, "Hello, world!" });
-			content.init_client(*this, peer_id);
+			content->init_client(*this, peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
 		case ENET_EVENT_TYPE_DISCONNECT:
@@ -48,11 +46,12 @@ void Server::update(ContentManager& content, Script& script) {
 			break;
 		}
 	}
-
+	script.on_tick(0.016f);
 	for (Client& client : clients) {
 		if (!client.connected) continue;
 		ENetPacket* packet = create_sprite_packet(client);
 		enet_peer_send(client.peer, SPRITE_CHANNEL, packet);
+		client.sprites.clear();
 		if (client.commands.size() > 0) {
 			packet = create_command_packet(client);
 			enet_peer_send(client.peer, COMMAND_CHANNEL, packet);
@@ -72,19 +71,44 @@ void Server::update_content(ContentType type, uint32_t id, const std::vector<uin
 }
 
 bool Server::start_text_input(uint16_t client) {
-	if (client < clients.size() && clients[client].connected) {
-		clients[client].commands.push_back({ Command::Type::START_TEXT_INPUT });
-		return true;
+	if (client >= clients.size() || !clients[client].connected) {
+		return false;
 	}
-	return false;
+	clients[client].commands.push_back({ Command::Type::START_TEXT_INPUT });
+	return true;
 }
 
 bool Server::stop_text_input(uint16_t client) {
-	if (client < clients.size() && clients[client].connected) {
-		clients[client].commands.push_back({ Command::Type::STOP_TEXT_INPUT });
-		return true;
+	if (client >= clients.size() || !clients[client].connected) {
+		return false;
 	}
-	return false;
+	clients[client].commands.push_back({ Command::Type::STOP_TEXT_INPUT });
+	return true;
+}
+
+int Server::draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return 1;
+	}
+	uint32_t id = content->get_image_id("Content/Images/" + path);
+	if (id == 0) {
+		return 2;
+	}
+	clients[client].sprites.push_back({ false, id, x, y, scale, 0, 0, 0, "" });
+	return 0;
+}
+
+int Server::draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
+	uint8_t r, uint8_t g, uint8_t b, std::string text) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return 1;
+	}
+	uint32_t id = content->get_font_id("Content/Fonts/" + path);
+	if (id == 0) {
+		return 2;
+	}
+	clients[client].sprites.push_back({ true, id, x, y, scale, r, g, b, text });
+	return 0;
 }
 
 ENetPacket* Server::create_sprite_packet(Client& client) {

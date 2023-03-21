@@ -14,24 +14,17 @@ int main(int argc, char* argv[]) {
 	}
 
 	ContentManager content;
-	Server server(17899);
+	Server server(content, 17899);
 	content.reload(server);
+	Script script(server);
 
-	Script script(server, "Content/Scripts/main.lua");
-
-	auto last_content_update = std::chrono::high_resolution_clock::now();
-	auto last_update = last_content_update;
+	auto last_update = std::chrono::high_resolution_clock::now();
 	while (true) {
 		auto now = std::chrono::high_resolution_clock::now();
-		uint64_t duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_content_update).count();
-		if (duration >= CONTENT_RELOAD) {
-			last_content_update = now;
-			//content.reload(server);
-		}
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
+		uint64_t duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
 		if (duration >= 33) {
 			last_update = now;
-			server.update(content, script);
+			server.update(script);
 		}
 	}
 
