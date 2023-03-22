@@ -209,6 +209,9 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, uint8_t r, 
 
 	for (uint32_t i = 0; i < length; ++i) {
 		uint32_t codepoint = text[i];
+		if ((codepoint & 0xE0) == 0xC0) {
+			codepoint = ((codepoint & 0x1F) << 6) | (text[++i] & 0x3F);
+		}
 		Glyph& glyph = load_glyph(id, codepoint);
 
 		glActiveTexture(GL_TEXTURE0);

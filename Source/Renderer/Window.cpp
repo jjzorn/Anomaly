@@ -76,9 +76,14 @@ bool Window::update() {
 			}
 			break;
 		case SDL_KEYDOWN:
-			if (event.key.keysym.sym == SDLK_BACKSPACE && input.composition.length() > 0) {
-				input.composition.pop_back();
-				input.changed_composition = true;
+			if (event.key.keysym.sym == SDLK_BACKSPACE) {
+				while (input.composition.length() > 0 && (input.composition.back() & 0xC0) == 0x80) {
+					input.composition.pop_back();
+				}
+				if (input.composition.length() > 0) {
+					input.changed_composition = true;
+					input.composition.pop_back();
+				}
 			}
 			input.key_events.push_back({ event.key.keysym.sym, true });
 			break;
