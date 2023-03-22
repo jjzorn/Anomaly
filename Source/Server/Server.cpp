@@ -202,8 +202,24 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		float x = read_float(data);
 		float y = read_float(data + 4);
 		uint8_t finger = data[8];
-		bool down = data[9];
+		uint8_t type = data[9];
 		data += 10;
-		script.on_touch_event(client, x, y, finger, down);
+		script.on_finger_event(client, x, y, finger, type);
+	}
+	length = read32(data);
+	data += 4;
+	for (uint32_t i = 0; i < length; ++i) {
+		float x = read_float(data);
+		float y = read_float(data + 4);
+		uint8_t button = data[8];
+		uint8_t type = data[9];
+		data += 10;
+		if (type == static_cast<uint8_t>(InputEventType::MOTION)) {
+			script.on_mouse_motion(client, x, y);
+		}
+		else {
+			script.on_mouse_button(client, x, y, button,
+				type == static_cast<uint8_t>(InputEventType::DOWN));
+		}
 	}
 }

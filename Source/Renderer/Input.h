@@ -12,16 +12,23 @@ struct KeyEvent {
 	bool down;
 };
 
-struct TouchEvent {
+struct FingerEvent {
 	float x, y;
 	uint8_t finger;
-	bool down;
+	uint8_t type;
+};
+
+struct MouseEvent {
+	float x, y;
+	uint8_t button;
+	uint8_t type;
 };
 
 struct Input {
 	std::vector<KeyEvent> key_events;
-	std::vector<TouchEvent> touch_events;
 	std::string composition;
+	std::vector<FingerEvent> finger_events;
+	std::vector<MouseEvent> mouse_events;
 
 	bool changed_composition = false;
 

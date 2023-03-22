@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include <Anomaly.h>
 #include <Renderer/Window.h>
 
 Window::Window() {
@@ -91,14 +92,36 @@ bool Window::update() {
 			input.key_events.push_back({ event.key.keysym.sym, false });
 			break;
 		case SDL_FINGERDOWN:
-			input.touch_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
-				-event.tfinger.y * 2.0f + 1.0f,
-				static_cast<uint8_t>(event.tfinger.fingerId), true });
+			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
+				static_cast<uint8_t>(InputEventType::DOWN) });
 			break;
 		case SDL_FINGERUP:
-			input.touch_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
-				-event.tfinger.y * 2.0f + 1.0f,
-				static_cast<uint8_t>(event.tfinger.fingerId), false });
+			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
+				static_cast<uint8_t>(InputEventType::UP) });
+			break;
+		case SDL_FINGERMOTION:
+			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
+				static_cast<uint8_t>(InputEventType::MOTION) });
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			input.mouse_events.push_back({ (event.button.x / width() * 2.0f - 1.0f) * aspect_ratio(),
+				-event.button.y / height() * 2.0f + 1.0f,
+				static_cast<uint8_t>(event.button.button),
+				static_cast<uint8_t>(InputEventType::DOWN) });
+			break;
+		case SDL_MOUSEBUTTONUP:
+			input.mouse_events.push_back({ (event.button.x / width() * 2.0f - 1.0f) * aspect_ratio(),
+				-event.button.y / height() * 2.0f + 1.0f,
+				static_cast<uint8_t>(event.button.button),
+				static_cast<uint8_t>(InputEventType::UP) });
+			break;
+		case SDL_MOUSEMOTION:
+			input.mouse_events.push_back({ (event.button.x / width() * 2.0f - 1.0f) * aspect_ratio(),
+				-event.button.y / height() * 2.0f + 1.0f, 0,
+				static_cast<uint8_t>(InputEventType::MOTION) });
 			break;
 		case SDL_TEXTINPUT:
 			input.composition += event.text.text;
@@ -114,9 +137,7 @@ void Window::present() {
 }
 
 float Window::aspect_ratio() const {
-	int width, height;
-	SDL_GL_GetDrawableSize(window, &width, &height);
-	return static_cast<float>(width) / static_cast<float>(height);
+	return width() / height();
 }
 
 ENetPacket* Window::create_input_packet() {
@@ -131,4 +152,16 @@ void Window::start_text_input() {
 
 void Window::stop_text_input() {
 	SDL_StopTextInput();
+}
+
+float Window::width() const {
+	int width;
+	SDL_GL_GetDrawableSize(window, &width, nullptr);
+	return width;
+}
+
+float Window::height() const {
+	int height;
+	SDL_GL_GetDrawableSize(window, nullptr, &height);
+	return height;
 }

@@ -25,6 +25,12 @@ struct Command {
 	} type;
 };
 
+enum class InputEventType {
+	UP,
+	DOWN,
+	MOTION
+};
+
 inline void write16(uint8_t* area, uint16_t i) {
 	area[0] = (i & 0xFF00) >> 8;
 	area[1] = (i & 0x00FF);

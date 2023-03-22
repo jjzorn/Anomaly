@@ -34,6 +34,9 @@ private:
 	SDL_GLContext context = nullptr;
 
 	Input input;
+
+	float width() const;
+	float height() const;
 };
 
 #endif

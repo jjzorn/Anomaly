@@ -126,14 +126,15 @@ void Script::on_quit(uint16_t client) {
 }
 
 void Script::on_key_event(uint16_t client, int32_t key, bool down) {
-	if (get_function("on_key_event")) {
+	const char* method = down ? "on_key_down" : "on_key_up";
+	if (get_function(method)) {
 		auto it = keycodes.find(key);
 		if (it != keycodes.end()) {
 			lua_pushinteger(L, client);
 			lua_pushstring(L, it->second);
-			lua_pushboolean(L, down);
-			if (lua_pcall(L, 3, 0, 0) != LUA_OK) {
-				std::cerr << "ERROR: Could not call on_key_event: " << lua_tostring(L, -1) << '\n';
+			if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
+				std::cerr << "ERROR: Could not call " << method << ": " << lua_tostring(L, -1) <<
+					'\n';
 			}
 		}
 		else {
@@ -143,23 +144,87 @@ void Script::on_key_event(uint16_t client, int32_t key, bool down) {
 	lua_settop(L, 0);
 }
 
-void Script::on_touch_event(uint16_t client, float x, float y, uint8_t finger, bool down) {
-	if (get_function("on_touch_event")) {
+void Script::on_finger_event(uint16_t client, float x, float y, uint8_t finger, uint8_t type) {
+	const char* method = nullptr;
+	switch (static_cast<InputEventType>(type)) {
+	case InputEventType::DOWN:
+		method = "on_finger_down";
+		break;
+	case InputEventType::UP:
+		method = "on_finger_up";
+		break;
+	case InputEventType::MOTION:
+		method = "on_finger_motion";
+		break;
+	}
+	if (get_function(method)) {
 		lua_pushinteger(L, client);
+		lua_pushinteger(L, finger);
 		lua_pushnumber(L, x);
 		lua_pushnumber(L, y);
-		lua_pushinteger(L, finger);
-		lua_pushboolean(L, down);
-		if (lua_pcall(L, 5, 0, 0) != LUA_OK) {
-			std::cerr << "ERROR: Could not call on_touch_event: " << lua_tostring(L, -1) << '\n';
+		if (lua_pcall(L, 4, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call " << method << ": " << lua_tostring(L, -1) << '\n';
 		}
 	}
 	lua_settop(L, 0);
 }
 
+void Script::on_mouse_button(uint16_t client, float x, float y, uint8_t button, bool down) {
+	const char* method = down ? "on_mouse_button_down" : "on_mouse_button_up";
+	if (get_function(method)) {
+		lua_pushinteger(L, client);
+		switch (button) {
+		case 1:
+			lua_pushstring(L, "Left");
+			break;
+		case 2:
+			lua_pushstring(L, "Middle");
+			break;
+		case 3:
+			lua_pushstring(L, "Right");
+			break;
+		case 4:
+			lua_pushstring(L, "Extra 1");
+			break;
+		case 5:
+			lua_pushstring(L, "Extra 2");
+			break;
+		}
+		lua_pushnumber(L, x);
+		lua_pushnumber(L, y);
+		if (lua_pcall(L, 4, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call " << method << ": " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+void Script::on_mouse_motion(uint16_t client, float x, float y) {
+	if (get_function("on_mouse_motion")) {
+		lua_pushinteger(L, client);
+		lua_pushnumber(L, x);
+		lua_pushnumber(L, y);
+		if (lua_pcall(L, 3, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_mouse_motion: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
+bool Script::check_reload() {
+	if (should_reload) {
+		should_reload = false;
+		reload();
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 int Script::lua_reload(lua_State* L) {
 	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	script->reload();
+	script->should_reload = true;
 	return 0;
 }
 
