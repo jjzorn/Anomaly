@@ -43,7 +43,7 @@ private:
 
 	struct Client {
 		bool connected = false;
-		bool mobile;
+		bool has_touch;
 		ENetPeer* peer;
 		std::vector<Sprite> sprites;
 		std::vector<Command> commands;

@@ -40,10 +40,11 @@ void Server::update(Script& script, double dt) {
 				client_input(peer_id, event.packet, script);
 			}
 			else {
-				clients[peer_id].mobile = event.packet->data[0];
+				bool has_touch = event.packet->data[0];
 				clients[peer_id].connected = true;
+				clients[peer_id].has_touch = has_touch;
 				content->init_client(*this, peer_id);
-				script.on_join(peer_id);
+				script.on_join(peer_id, has_touch);
 			}
 			enet_packet_destroy(event.packet);
 			break;
@@ -119,13 +120,6 @@ int Server::draw_text(uint16_t client, const std::string& path, float x, float y
 	}
 	clients[client].sprites.push_back({ true, id, x, y, scale, r, g, b, text });
 	return 0;
-}
-
-int Server::has_touch(uint16_t client) {
-	if (client >= clients.size() || !clients[client].connected) {
-		return 2;
-	}
-	return static_cast<int>(clients[client].mobile);
 }
 
 bool Server::kick(uint16_t client) {
@@ -214,7 +208,7 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		uint8_t button = data[8];
 		uint8_t type = data[9];
 		data += 10;
-		if (clients[client].mobile) {
+		if (clients[client].has_touch) {
 			script.on_finger_event(client, x, y, button, type);
 		}
 		else {

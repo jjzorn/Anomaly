@@ -70,6 +70,7 @@ private:
 	std::vector<Font> fonts;
 
 	Glyph& load_glyph(uint32_t id, uint32_t codepoint);
+	float get_text_width(uint32_t id, float scale, const uint8_t* text, uint32_t length);
 };
 
 #endif

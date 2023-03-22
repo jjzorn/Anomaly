@@ -77,7 +77,6 @@ void Script::reload() {
 	register_callback("get_composition", get_composition);
 	register_callback("draw_sprite", draw_sprite);
 	register_callback("draw_text", draw_text);
-	register_callback("has_touch", has_touch);
 	register_callback("kick", kick);
 	if (luaL_dofile(L, "Content/Scripts/main.lua") != LUA_OK) {
 		std::cerr << "ERROR: Could not load lua file 'Content/Scripts/main.lua': " <<
@@ -106,10 +105,11 @@ void Script::on_reload() {
 	lua_settop(L, 0);
 }
 
-void Script::on_join(uint16_t client) {
+void Script::on_join(uint16_t client, bool has_touch) {
 	if (get_function("on_join")) {
 		lua_pushinteger(L, client);
-		if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+		lua_pushboolean(L, has_touch);
+		if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
 			std::cerr << "ERROR: Could not call on_join: " << lua_tostring(L, -1) << '\n';
 		}
 	}
@@ -297,20 +297,6 @@ int Script::draw_text(lua_State* L) {
 		luaL_error(L, "Font %s is not loaded", path.c_str());
 	}
 	return 0;
-}
-
-int Script::has_touch(lua_State* L) {
-	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	int client = luaL_checkinteger(L, 1);
-	int result = script->server->has_touch(client);
-	if (result == 2) {
-		luaL_error(L, "Client %d is not online", client);
-		return 0;
-	}
-	else {
-		lua_pushboolean(L, result);
-		return 1;
-	}
 }
 
 int Script::kick(lua_State* L) {

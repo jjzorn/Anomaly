@@ -201,6 +201,7 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, uint8_t r, 
 	float xscale = yscale / window_aspect_ratio;
 
 	x /= window_aspect_ratio;
+	x -= get_text_width(id, scale, text, length) / 2.0f;
 	
 	float baseline = y - yscale * fonts[id].offset;
 
@@ -277,4 +278,17 @@ Renderer::Glyph& Renderer::load_glyph(uint32_t id, uint32_t codepoint) {
 	stbtt_FreeSDF(sdf, nullptr);
 
 	return glyph;
+}
+
+float Renderer::get_text_width(uint32_t id, float scale, const uint8_t* text, uint32_t length) {
+	float width = 0.0f;
+	for (uint32_t i = 0; i < length; ++i) {
+		uint32_t codepoint = text[i];
+		if ((codepoint & 0xE0) == 0xC0) {
+			codepoint = ((codepoint & 0x1F) << 6) | (text[++i] & 0x3F);
+		}
+		Glyph& glyph = load_glyph(id, codepoint);
+		width += glyph.advance * (scale / FONT_PIXELS / window->aspect_ratio());
+	}
+	return width;
 }
