@@ -12,12 +12,13 @@
 
 class Client {
 public:
-	Client(const std::string& hostname, uint16_t port, Window& window);
+	Client(Window& window);
 	Client(const Client&) = delete;
 	~Client();
 
 	Client& operator=(const Client&) = delete;
 
+	bool connect(Window& window, const std::string& hostname, uint16_t port);
 	bool update(Renderer& renderer);
 
 private:

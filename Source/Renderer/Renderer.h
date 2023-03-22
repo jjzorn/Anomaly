@@ -31,6 +31,8 @@ public:
 	void draw_sprite(uint32_t id, float x, float y, float scale);
 	void draw_text(uint32_t id, float x, float y, float scale, uint8_t r, uint8_t g, uint8_t b,
 		const uint8_t* text, uint32_t length);
+	void draw_string(uint32_t id, float x, float y, float scale, uint8_t r, uint8_t g, uint8_t b,
+		const std::string& text);
 
 private:
 	Window* window;
@@ -59,7 +61,7 @@ private:
 	};
 
 	struct Font {
-		std::vector<uint8_t> buffer;
+		uint8_t* buffer;
 		stbtt_fontinfo info;
 		std::unordered_map<uint32_t, Glyph> glyphs;
 		float offset;

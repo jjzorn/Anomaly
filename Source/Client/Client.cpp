@@ -5,17 +5,31 @@
 
 #include <SDL.h>
 
-Client::Client(const std::string& hostname, uint16_t port, Window& window) {
+Client::Client(Window& window) {
 	if (enet_initialize() < 0) {
 		window.error("Network initialization failed");
+		throw std::exception();
 	}
 	host = enet_host_create(nullptr, 1, NET_CHANNELS, 0, 0);
 	if (host == nullptr) {
 		window.error("Could not create network socket");
+		throw std::exception();
 	}
+}
+
+Client::~Client() {
+	if (peer != nullptr) {
+		enet_peer_disconnect_now(peer, 0);
+	}
+	enet_host_destroy(host);
+	enet_deinitialize();
+}
+
+bool Client::connect(Window& window, const std::string& hostname, uint16_t port) {
 	ENetAddress address = { 0 };
 	if (enet_address_set_host(&address, hostname.c_str()) < 0) {
 		window.error("Could not resolve hostname '" + hostname + "'");
+		return false;
 	}
 	address.port = port;
 	peer = enet_host_connect(host, &address, NET_CHANNELS, 0);
@@ -33,13 +47,9 @@ Client::Client(const std::string& hostname, uint16_t port, Window& window) {
 	}
 	else {
 		window.error("Could not connect to '" + hostname + ":[" + std::to_string(port) + "]'");
+		return false;
 	}
-}
-
-Client::~Client() {
-	enet_peer_disconnect_now(peer, 0);
-	enet_host_destroy(host);
-	enet_deinitialize();
+	return true;
 }
 
 bool Client::update(Renderer& renderer) {

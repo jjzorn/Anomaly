@@ -58,7 +58,6 @@ void Window::error(const std::string& message) {
 	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), window) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", message.c_str());
 	}
-	throw std::exception();
 }
 
 bool Window::update() {
@@ -148,13 +147,13 @@ ENetPacket* Window::create_input_packet() {
 }
 
 void Window::start_text_input() {
-	input.composition = "";
-	input.changed_composition = true;
 	SDL_StartTextInput();
 }
 
 void Window::stop_text_input() {
 	SDL_StopTextInput();
+	input.composition = "";
+	input.changed_composition = true;
 }
 
 float Window::width() const {

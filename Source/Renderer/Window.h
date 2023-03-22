@@ -29,11 +29,11 @@ public:
 	void start_text_input();
 	void stop_text_input();
 
+	Input input;
+
 private:
 	SDL_Window* window = nullptr;
 	SDL_GLContext context = nullptr;
-
-	Input input;
 
 	float width() const;
 	float height() const;

@@ -152,9 +152,10 @@ void Renderer::load_font(uint32_t id, const uint8_t* data, uint32_t length) {
 	if (fonts.size() <= id) {
 		fonts.resize(id + 1);
 	}
-	fonts[id].buffer.assign(data, data + length);
-	int offset = stbtt_GetFontOffsetForIndex(fonts[id].buffer.data(), 0);
-	if (stbtt_InitFont(&fonts[id].info, fonts[id].buffer.data(), offset)) {
+	fonts[id].buffer = new uint8_t[length];
+	memcpy(fonts[id].buffer, data, length);
+	int offset = stbtt_GetFontOffsetForIndex(fonts[id].buffer, 0);
+	if (stbtt_InitFont(&fonts[id].info, fonts[id].buffer, offset)) {
 		fonts[id].init = true;
 		float scale = stbtt_ScaleForPixelHeight(&fonts[id].info, FONT_PIXELS);
 		int ascent, descent;
@@ -234,6 +235,12 @@ void Renderer::draw_text(uint32_t id, float x, float y, float scale, uint8_t r, 
 	}
 
 	glUseProgram(0);
+}
+
+void Renderer::draw_string(uint32_t id, float x, float y, float scale, uint8_t r, uint8_t g,
+	uint8_t b, const std::string& text) {
+	draw_text(id, x, y, scale, r, g, b, reinterpret_cast<const uint8_t*>(text.c_str()),
+		text.length());
 }
 
 Renderer::Glyph& Renderer::load_glyph(uint32_t id, uint32_t codepoint) {

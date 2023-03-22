@@ -53,7 +53,8 @@ std::unordered_map<int32_t, const char*> keycodes = {
 	{ 1073742048, "Left Ctrl" },
 	{ 1073742049, "Left Shift" },
 	{ 1073742052, "Right Ctrl" },
-	{ 1073742053, "Right Shift" }
+	{ 1073742053, "Right Shift" },
+	{ 1073742094, "Back" }
 };
 
 Script::Script(Server& server) : server{ &server } {
