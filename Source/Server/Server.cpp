@@ -28,10 +28,7 @@ void Server::update(Script& script, double dt) {
 		uint16_t peer_id = event.peer->incomingPeerID;
 		switch (event.type) {
 		case ENET_EVENT_TYPE_CONNECT:
-			clients[peer_id].connected = true;
 			clients[peer_id].peer = event.peer;
-			content->init_client(*this, peer_id);
-			script.on_join(peer_id);
 			break;
 		case ENET_EVENT_TYPE_DISCONNECT_TIMEOUT:
 		case ENET_EVENT_TYPE_DISCONNECT:
@@ -41,6 +38,12 @@ void Server::update(Script& script, double dt) {
 		case ENET_EVENT_TYPE_RECEIVE:
 			if (clients[peer_id].connected) {
 				client_input(peer_id, event.packet, script);
+			}
+			else {
+				clients[peer_id].mobile = event.packet->data[0];
+				clients[peer_id].connected = true;
+				content->init_client(*this, peer_id);
+				script.on_join(peer_id);
 			}
 			enet_packet_destroy(event.packet);
 			break;
@@ -116,6 +119,13 @@ int Server::draw_text(uint16_t client, const std::string& path, float x, float y
 	}
 	clients[client].sprites.push_back({ true, id, x, y, scale, r, g, b, text });
 	return 0;
+}
+
+int Server::has_touch(uint16_t client) {
+	if (client >= clients.size() || !clients[client].connected) {
+		return 2;
+	}
+	return static_cast<int>(clients[client].mobile);
 }
 
 bool Server::kick(uint16_t client) {
@@ -201,25 +211,20 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 	for (uint32_t i = 0; i < length; ++i) {
 		float x = read_float(data);
 		float y = read_float(data + 4);
-		uint8_t finger = data[8];
-		uint8_t type = data[9];
-		data += 10;
-		script.on_finger_event(client, x, y, finger, type);
-	}
-	length = read32(data);
-	data += 4;
-	for (uint32_t i = 0; i < length; ++i) {
-		float x = read_float(data);
-		float y = read_float(data + 4);
 		uint8_t button = data[8];
 		uint8_t type = data[9];
 		data += 10;
-		if (type == static_cast<uint8_t>(InputEventType::MOTION)) {
-			script.on_mouse_motion(client, x, y);
+		if (clients[client].mobile) {
+			script.on_finger_event(client, x, y, button, type);
 		}
 		else {
-			script.on_mouse_button(client, x, y, button,
-				type == static_cast<uint8_t>(InputEventType::DOWN));
+			if (type == static_cast<uint8_t>(InputEventType::MOTION)) {
+				script.on_mouse_motion(client, x, y);
+			}
+			else {
+				script.on_mouse_button(client, x, y, button,
+					type == static_cast<uint8_t>(InputEventType::DOWN));
+			}
 		}
 	}
 }

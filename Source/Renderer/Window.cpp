@@ -91,21 +91,23 @@ bool Window::update() {
 		case SDL_KEYUP:
 			input.key_events.push_back({ event.key.keysym.sym, false });
 			break;
+#ifdef ANOMALY_MOBILE
 		case SDL_FINGERDOWN:
-			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+			input.mouse_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
 				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
 				static_cast<uint8_t>(InputEventType::DOWN) });
 			break;
 		case SDL_FINGERUP:
-			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+			input.mouse_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
 				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
 				static_cast<uint8_t>(InputEventType::UP) });
 			break;
 		case SDL_FINGERMOTION:
-			input.finger_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
+			input.mouse_events.push_back({ (event.tfinger.x * 2.0f - 1.0f) * aspect_ratio(),
 				-event.tfinger.y * 2.0f + 1.0f, static_cast<uint8_t>(event.tfinger.fingerId),
 				static_cast<uint8_t>(InputEventType::MOTION) });
 			break;
+#else
 		case SDL_MOUSEBUTTONDOWN:
 			input.mouse_events.push_back({ (event.button.x / width() * 2.0f - 1.0f) * aspect_ratio(),
 				-event.button.y / height() * 2.0f + 1.0f,
@@ -123,6 +125,7 @@ bool Window::update() {
 				-event.button.y / height() * 2.0f + 1.0f, 0,
 				static_cast<uint8_t>(InputEventType::MOTION) });
 			break;
+#endif
 		case SDL_TEXTINPUT:
 			input.composition += event.text.text;
 			input.changed_composition = true;

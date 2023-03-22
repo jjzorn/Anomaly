@@ -47,6 +47,7 @@ private:
 	static int draw_sprite(lua_State* L);
 	static int draw_text(lua_State* L);
 
+	static int has_touch(lua_State* L);
 	static int kick(lua_State* L);
 
 	bool get_function(const char* name);

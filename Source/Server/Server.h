@@ -34,6 +34,7 @@ public:
 	int draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
 		uint8_t r, uint8_t g, uint8_t b, std::string text);
 
+	int has_touch(uint16_t client);
 	bool kick(uint16_t client);
 
 private:
@@ -42,6 +43,7 @@ private:
 
 	struct Client {
 		bool connected = false;
+		bool mobile;
 		ENetPeer* peer;
 		std::vector<Sprite> sprites;
 		std::vector<Command> commands;

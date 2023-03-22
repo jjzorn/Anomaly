@@ -13,7 +13,7 @@ int SDL_main(int argc, char* argv[]) {
 	try {
 		Window window;
 		Renderer renderer(window);
-		Client client("2003:dd:ff26:3800:3593:208:5beb:fb69", 17899, window);
+		Client client("192.168.178.29", 17899, window);
 		auto last_update = std::chrono::high_resolution_clock::now();
 		while (true) {
 			auto now = std::chrono::high_resolution_clock::now();

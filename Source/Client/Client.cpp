@@ -20,7 +20,18 @@ Client::Client(const std::string& hostname, uint16_t port, Window& window) {
 	address.port = port;
 	peer = enet_host_connect(host, &address, NET_CHANNELS, 0);
 	ENetEvent event;
-	if (enet_host_service(host, &event, 5000) == 0 || event.type != ENET_EVENT_TYPE_CONNECT) {
+	if (enet_host_service(host, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+		uint8_t login_packet[] = {
+#ifdef ANOMALY_MOBILE
+			1
+#else
+			0
+#endif
+		};
+		ENetPacket* packet = enet_packet_create(login_packet, sizeof(login_packet), ENET_PACKET_FLAG_RELIABLE);
+		enet_peer_send(peer, INPUT_CHANNEL, packet);
+	}
+	else {
 		window.error("Could not connect to '" + hostname + ":[" + std::to_string(port) + "]'");
 	}
 }
