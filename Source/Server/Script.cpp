@@ -75,7 +75,6 @@ void Script::reload() {
 	register_callback("start_text_input", start_text_input);
 	register_callback("stop_text_input", stop_text_input);
 	register_callback("get_composition", get_composition);
-	register_callback("set_composition", set_composition);
 	register_callback("draw_sprite", draw_sprite);
 	register_callback("draw_text", draw_text);
 	register_callback("kick", kick);
@@ -194,16 +193,6 @@ int Script::get_composition(lua_State* L) {
 		lua_pushstring(L, result);
 		return 1;
 	}
-}
-
-int Script::set_composition(lua_State* L) {
-	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	int client = luaL_checkinteger(L, 1);
-	std::string composition = luaL_checkstring(L, 2);
-	if (!script->server->set_composition(client, composition)) {
-		luaL_error(L, "Client %d is not online", client);
-	}
-	return 0;
 }
 
 int Script::draw_sprite(lua_State* L) {

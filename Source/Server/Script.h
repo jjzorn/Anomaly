@@ -37,7 +37,6 @@ private:
 	static int start_text_input(lua_State* L);
 	static int stop_text_input(lua_State* L);
 	static int get_composition(lua_State* L);
-	static int set_composition(lua_State* L);
 
 	static int draw_sprite(lua_State* L);
 	static int draw_text(lua_State* L);

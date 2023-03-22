@@ -76,6 +76,10 @@ bool Window::update() {
 			}
 			break;
 		case SDL_KEYDOWN:
+			if (event.key.keysym.sym == SDLK_BACKSPACE && input.composition.length() > 0) {
+				input.composition.pop_back();
+				input.changed_composition = true;
+			}
 			input.key_events.push_back({ event.key.keysym.sym, true });
 			break;
 		case SDL_KEYUP:
@@ -92,7 +96,8 @@ bool Window::update() {
 				static_cast<uint8_t>(event.tfinger.fingerId), false });
 			break;
 		case SDL_TEXTINPUT:
-			input.textinput += event.text.text;
+			input.composition += event.text.text;
+			input.changed_composition = true;
 			break;
 		}
 	}
@@ -114,6 +119,8 @@ ENetPacket* Window::create_input_packet() {
 }
 
 void Window::start_text_input() {
+	input.composition = "";
+	input.changed_composition = true;
 	SDL_StartTextInput();
 }
 

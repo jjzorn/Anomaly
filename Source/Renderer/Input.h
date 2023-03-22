@@ -21,7 +21,9 @@ struct TouchEvent {
 struct Input {
 	std::vector<KeyEvent> key_events;
 	std::vector<TouchEvent> touch_events;
-	std::string textinput;
+	std::string composition;
+
+	bool changed_composition = false;
 
 	ENetPacket* create_input_packet();
 };
