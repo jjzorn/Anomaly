@@ -3,8 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <stb_image.h>
-
 #include <Server/ContentManager.h>
 
 static void read_file(const std::filesystem::path& path, std::vector<uint8_t>& data) {
@@ -39,10 +37,6 @@ void ContentManager::reload(Server& server) {
 				}
 				image->last_write = entry.last_write_time();
 				read_file(path, image->data);
-				int width, height;
-				stbi_info_from_memory(image->data.data(), image->data.size(), &width, &height, nullptr);
-				image->width = width;
-				image->height = height;
 				server.update_content(ContentType::IMAGE, image->id, image->data);
 			}
 		}
@@ -65,8 +59,6 @@ void ContentManager::reload(Server& server) {
 				}
 				font->last_write = entry.last_write_time();
 				read_file(path, font->data);
-				int offset = stbtt_GetFontOffsetForIndex(font->data.data(), 0);
-				stbtt_InitFont(&font->info, font->data.data(), offset);
 				server.update_content(ContentType::FONT, font->id, font->data);
 			}
 		}

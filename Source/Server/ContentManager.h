@@ -8,8 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <stb_truetype.h>
-
 #include <Server/Server.h>
 
 class ContentManager {
@@ -25,13 +23,10 @@ private:
 		std::vector<uint8_t> data;
 		std::filesystem::file_time_type last_write;
 		uint32_t id;
-		uint16_t width;
-		uint16_t height;
 	};
 
 	struct Font {
 		std::vector<uint8_t> data;
-		stbtt_fontinfo info;
 		std::filesystem::file_time_type last_write;
 		uint32_t id;
 	};
