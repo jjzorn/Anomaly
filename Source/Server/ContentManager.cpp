@@ -40,7 +40,8 @@ void ContentManager::reload(Server& server) {
 				server.update_content(ContentType::IMAGE, image->id, image->data);
 			}
 		}
-	} catch (...) {}
+	}
+	catch (...) {}
 	try {
 		for (auto entry : std::filesystem::recursive_directory_iterator("Content/Fonts")) {
 			if (entry.is_regular_file()) {
@@ -62,6 +63,29 @@ void ContentManager::reload(Server& server) {
 				server.update_content(ContentType::FONT, font->id, font->data);
 			}
 		}
+	}
+	catch (...) {}
+	try {
+		for (auto entry : std::filesystem::recursive_directory_iterator("Content/Sounds")) {
+			if (entry.is_regular_file()) {
+				std::filesystem::path path = std::filesystem::canonical(entry.path());
+				Sound* sound;
+				auto it = sounds.find(path);
+				if (it != sounds.end()) {
+					sound = &it->second;
+					if (entry.last_write_time() == sound->last_write) {
+						continue;
+					}
+				}
+				else {
+					sound = &sounds[path];
+					sound->id = sound_id++;
+				}
+				sound->last_write = entry.last_write_time();
+				read_file(path, sound->data);
+				server.update_content(ContentType::SOUND, sound->id, sound->data);
+			}
+		}
 	} catch (...) {}
 }
 
@@ -72,10 +96,13 @@ void ContentManager::init_client(Server& server, uint16_t client) {
 	for (auto it : fonts) {
 		server.update_client_content(client, ContentType::FONT, it.second.id, it.second.data);
 	}
+	for (auto it : sounds) {
+		server.update_client_content(client, ContentType::SOUND, it.second.id, it.second.data);
+	}
 }
 
 uint32_t ContentManager::get_image_id(const std::string& path) const {
-	std::filesystem::path p = std::filesystem::weakly_canonical(path);
+	std::filesystem::path p = std::filesystem::weakly_canonical("Content/Images/" + path);
 	auto it = images.find(p);
 	if (it != images.end()) {
 		return it->second.id;
@@ -84,9 +111,18 @@ uint32_t ContentManager::get_image_id(const std::string& path) const {
 }
 
 uint32_t ContentManager::get_font_id(const std::string& path) const {
-	std::filesystem::path p = std::filesystem::weakly_canonical(path);
+	std::filesystem::path p = std::filesystem::weakly_canonical("Content/Fonts/" + path);
 	auto it = fonts.find(p);
 	if (it != fonts.end()) {
+		return it->second.id;
+	}
+	return 0;
+}
+
+uint32_t ContentManager::get_sound_id(const std::string& path) const {
+	std::filesystem::path p = std::filesystem::weakly_canonical("Content/Sounds/" + path);
+	auto it = sounds.find(p);
+	if (it != sounds.end()) {
 		return it->second.id;
 	}
 	return 0;

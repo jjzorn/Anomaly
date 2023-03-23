@@ -17,6 +17,7 @@ public:
 
 	uint32_t get_image_id(const std::string& path) const;
 	uint32_t get_font_id(const std::string& path) const;
+	uint32_t get_sound_id(const std::string& path) const;
 
 private:
 	struct Image {
@@ -31,11 +32,20 @@ private:
 		uint32_t id;
 	};
 
+	struct Sound {
+		std::vector<uint8_t> data;
+		std::filesystem::file_time_type last_write;
+		uint32_t id;
+	};
+
 	uint32_t image_id = 1;
 	std::unordered_map<std::filesystem::path, Image> images;
 
 	uint32_t font_id = 1;
 	std::unordered_map<std::filesystem::path, Font> fonts;
+
+	uint32_t sound_id = 1;
+	std::unordered_map<std::filesystem::path, Sound> sounds;
 };
 
 #endif

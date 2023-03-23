@@ -152,6 +152,9 @@ void Renderer::load_font(uint32_t id, const uint8_t* data, uint32_t length) {
 	if (fonts.size() <= id) {
 		fonts.resize(id + 1);
 	}
+	if (fonts[id].buffer != nullptr) {
+		delete[] fonts[id].buffer;
+	}
 	fonts[id].buffer = new uint8_t[length];
 	memcpy(fonts[id].buffer, data, length);
 	int offset = stbtt_GetFontOffsetForIndex(fonts[id].buffer, 0);

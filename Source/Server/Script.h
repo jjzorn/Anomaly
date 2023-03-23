@@ -49,6 +49,10 @@ private:
 
 	static int kick(lua_State* L);
 
+	static int play_sound(lua_State* L);
+	static int stop_sound(lua_State* L);
+	static int stop_all_sounds(lua_State* L);
+
 	bool get_function(const char* name);
 	void register_callback(const char* name, lua_CFunction callback);
 };

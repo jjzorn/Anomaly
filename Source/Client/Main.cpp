@@ -52,7 +52,7 @@ std::string start_menu(Renderer& renderer) {
 	}
 }
 
-void run_client(Renderer& renderer, const std::string& hostname) {
+void run_client(Audio& audio, Renderer& renderer, const std::string& hostname) {
 	auto last_update = std::chrono::high_resolution_clock::now();
 	Client client(renderer.get_window());
 	if (!client.connect(renderer.get_window(), hostname, 17899)) {
@@ -65,7 +65,7 @@ void run_client(Renderer& renderer, const std::string& hostname) {
 		if (duration >= MINIMUM_FRAME_TIME) {
 			last_update = now;
 			if (!renderer.get_window().update()) throw std::exception();
-			if (!client.update(renderer)) break;
+			if (!client.update(audio, renderer)) break;
 		}
 	}
 }
@@ -78,7 +78,7 @@ int SDL_main(int argc, char* argv[]) {
 		renderer.load_font(0, typed_ttf, typed_ttf_length);
 		while (true) {
 			std::string hostname = start_menu(renderer);
-			run_client(renderer, hostname);
+			run_client(audio, renderer, hostname);
 		}
 	} catch (...) {}
 	return 0;

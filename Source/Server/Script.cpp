@@ -79,6 +79,9 @@ void Script::reload() {
 	register_callback("draw_sprite", draw_sprite);
 	register_callback("draw_text", draw_text);
 	register_callback("kick", kick);
+	register_callback("play_sound", play_sound);
+	register_callback("stop_sound", stop_sound);
+	register_callback("stop_all_sounds", stop_all_sounds);
 	if (luaL_dofile(L, "Content/Scripts/main.lua") != LUA_OK) {
 		std::cerr << "ERROR: Could not load lua file 'Content/Scripts/main.lua': " <<
 			lua_tostring(L, -1) << '\n';
@@ -292,10 +295,10 @@ int Script::draw_text(lua_State* L) {
 	std::string text = luaL_checkstring(L, 9);
 	int result = script->server->draw_text(client, path, x, y, scale, r, g, b, text);
 	if (result == 1) {
-		luaL_error(L, "Client %d is not online", client);
+		return luaL_error(L, "Client %d is not online", client);
 	}
 	else if (result == 2) {
-		luaL_error(L, "Font %s is not loaded", path.c_str());
+		return luaL_error(L, "Font %s is not loaded", path.c_str());
 	}
 	return 0;
 }
@@ -305,6 +308,58 @@ int Script::kick(lua_State* L) {
 	int client = luaL_checkinteger(L, 1);
 	if (!script->server->kick(client)) {
 		luaL_error(L, "Client %d is not online", client);
+	}
+	return 0;
+}
+
+int Script::play_sound(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	int client = luaL_checkinteger(L, 1);
+	std::string path = luaL_checkstring(L, 2);
+	int volume = luaL_checkinteger(L, 3);
+	if (volume < 0 || volume > 128) {
+		return luaL_error(L, "Invalid volume, must be between 0 and 128");
+	}
+	int result;
+	if (lua_gettop(L) > 3) {
+		uint16_t channel = luaL_checkinteger(L, 4);
+		if (channel >= ANOMALY_AUDIO_CHANNELS) {
+			return luaL_error(L, "Invalid channel, must be between 0 and %d",
+				static_cast<int>(ANOMALY_AUDIO_CHANNELS) - 1);
+		}
+		result = script->server->play(client, path, channel, volume);
+	}
+	else {
+		result = script->server->play_any(client, path, volume);
+	}
+	if (result == 1) {
+		return luaL_error(L, "Client %d is not online", client);
+	}
+	else if (result == 2) {
+		return luaL_error(L, "Sound %s is not loaded", path.c_str());
+	}
+	return 0;
+}
+
+int Script::stop_sound(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	int client = luaL_checkinteger(L, 1);
+	uint16_t channel = luaL_checkinteger(L, 2);
+	if (channel >= ANOMALY_AUDIO_CHANNELS) {
+		return luaL_error(L, "Invalid channel, must be between 0 and %d",
+			static_cast<int>(ANOMALY_AUDIO_CHANNELS) - 1);
+	}
+	if (!script->server->stop(client, channel)) {
+		return luaL_error(L, "Client %d is not online", client);
+	}
+	return 0;
+}
+
+int Script::stop_all_sounds(lua_State* L) {
+	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
+	int client = luaL_checkinteger(L, 1);
+	if (!script->server->stop_all(client)) {
+		return luaL_error(L, "Client %d is not online", client);
 	}
 	return 0;
 }

@@ -34,8 +34,12 @@ public:
 	int draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
 		uint8_t r, uint8_t g, uint8_t b, std::string text);
 
-	int has_touch(uint16_t client);
 	bool kick(uint16_t client);
+
+	int play(uint16_t client, const std::string& path, uint16_t channel, uint8_t volume);
+	int play_any(uint16_t client, const std::string& path, uint8_t volume);
+	bool stop(uint16_t client, uint16_t channel);
+	bool stop_all(uint16_t client);
 
 private:
 	ContentManager* content;
@@ -47,6 +51,7 @@ private:
 		ENetPeer* peer;
 		std::vector<Sprite> sprites;
 		std::vector<Command> commands;
+		std::vector<AudioCommand> audio_commands;
 		std::string composition;
 	};
 
@@ -54,6 +59,7 @@ private:
 
 	ENetPacket* create_sprite_packet(Client& client);
 	ENetPacket* create_command_packet(Client& client);
+	ENetPacket* create_audio_packet(Client& client);
 	static ENetPacket* create_content_packet(ContentType type, uint32_t id, const std::vector<uint8_t>& data);
 
 	void client_input(uint16_t client, ENetPacket* input_packet, Script& script);

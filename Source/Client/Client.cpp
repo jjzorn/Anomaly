@@ -52,7 +52,7 @@ bool Client::connect(Window& window, const std::string& hostname, uint16_t port)
 	return true;
 }
 
-bool Client::update(Renderer& renderer) {
+bool Client::update(Audio& audio, Renderer& renderer) {
 	ENetPacket* input_packet = renderer.get_window().create_input_packet();
 	if (input_packet) {
 		enet_peer_send(peer, INPUT_CHANNEL, input_packet);
@@ -71,7 +71,10 @@ bool Client::update(Renderer& renderer) {
 				handle_commands(renderer, event.packet);
 			}
 			else if (event.channelID == CONTENT_CHANNEL) {
-				update_content(renderer, event.packet);
+				update_content(audio, renderer, event.packet);
+			}
+			else if (event.channelID == AUDIO_CHANNEL) {
+				handle_audio(audio, event.packet);
 			}
 			enet_packet_destroy(event.packet);
 			break;
@@ -121,7 +124,20 @@ void Client::handle_commands(Renderer& renderer, ENetPacket* packet) {
 	}
 }
 
-void Client::update_content(Renderer& renderer, ENetPacket* packet) {
+void Client::handle_audio(Audio& audio, ENetPacket* packet) {
+	uint32_t size = read32(packet->data);
+	uint8_t* data = packet->data + 4;
+	for (uint32_t i = 0; i < size; ++i) {
+		uint32_t id = read32(data);
+		uint16_t channel = read16(data + 4);
+		uint8_t volume = data[6];
+		AudioCommand::Type type = static_cast<AudioCommand::Type>(data[7]);
+		data += 8;
+		audio.perform_command(id, channel, volume, type);
+	}
+}
+
+void Client::update_content(Audio& audio, Renderer& renderer, ENetPacket* packet) {
 	uint32_t id = read32(packet->data + 1);
 	uint32_t length = read32(packet->data + 5);
 	if (packet->data[0] == static_cast<uint8_t>(ContentType::IMAGE)) {
@@ -131,5 +147,9 @@ void Client::update_content(Renderer& renderer, ENetPacket* packet) {
 	else if (packet->data[0] == static_cast<uint8_t>(ContentType::FONT)) {
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (font ID %u)", id);
 		renderer.load_font(id, packet->data + 9, length);
+	}
+	else if (packet->data[0] == static_cast<uint8_t>(ContentType::SOUND)) {
+		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Received content update (sound ID %u)", id);
+		audio.load_sound(id, packet->data + 9, length);
 	}
 }

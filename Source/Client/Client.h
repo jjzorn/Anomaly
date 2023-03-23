@@ -7,6 +7,7 @@
 
 #include <enet.h>
 
+#include <Audio/Audio.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Window.h>
 
@@ -19,7 +20,7 @@ public:
 	Client& operator=(const Client&) = delete;
 
 	bool connect(Window& window, const std::string& hostname, uint16_t port);
-	bool update(Renderer& renderer);
+	bool update(Audio& audio, Renderer& renderer);
 
 private:
 	ENetHost* host = nullptr;
@@ -27,7 +28,8 @@ private:
 
 	void draw(Renderer& renderer, ENetPacket* packet);
 	void handle_commands(Renderer& renderer, ENetPacket* packet);
-	void update_content(Renderer& window, ENetPacket* packet);
+	void handle_audio(Audio& audio, ENetPacket* packet);
+	void update_content(Audio& audio, Renderer& window, ENetPacket* packet);
 };
 
 #endif

@@ -7,7 +7,8 @@
 
 enum class ContentType {
 	IMAGE,
-	FONT
+	FONT,
+	SOUND
 };
 
 struct Sprite {
@@ -22,6 +23,18 @@ struct Command {
 	enum class Type {
 		START_TEXT_INPUT,
 		STOP_TEXT_INPUT
+	} type;
+};
+
+struct AudioCommand {
+	uint32_t id;
+	uint16_t channel;
+	uint8_t volume;
+	enum class Type {
+		PLAY,
+		PLAY_ANY,
+		STOP,
+		STOP_ALL
 	} type;
 };
 
@@ -66,12 +79,16 @@ inline float read_float(uint8_t* area) {
 
 constexpr uint64_t CONTENT_RELOAD = 1000;
 
-constexpr uint16_t MAX_CLIENTS = 64;
-constexpr uint16_t NET_CHANNELS = 4;
+constexpr uint16_t MAX_CLIENTS = 32;
+
+constexpr uint16_t NET_CHANNELS = 5;
 constexpr uint16_t INPUT_CHANNEL = 0;
 constexpr uint16_t COMMAND_CHANNEL = 1;
 constexpr uint16_t SPRITE_CHANNEL = 2;
 constexpr uint16_t CONTENT_CHANNEL = 3;
+constexpr uint16_t AUDIO_CHANNEL = 4;
+
+constexpr uint16_t ANOMALY_AUDIO_CHANNELS = 16;
 
 constexpr float FONT_PIXELS = 64.0f;
 constexpr int FONT_SDF_PADDING = 10;
