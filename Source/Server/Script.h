@@ -29,6 +29,7 @@ public:
 	void on_mouse_button(uint16_t client, float x, float y, uint8_t button, bool down);
 	void on_mouse_motion(uint16_t client, float x, float y);
 	
+	void request_reload();
 	bool check_reload();
 
 private:

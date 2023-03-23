@@ -216,6 +216,10 @@ void Script::on_mouse_motion(uint16_t client, float x, float y) {
 	lua_settop(L, 0);
 }
 
+void Script::request_reload() {
+	should_reload = true;
+}
+
 bool Script::check_reload() {
 	if (should_reload) {
 		should_reload = false;
