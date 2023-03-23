@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include <Anomaly.h>
+#include <Audio/Audio.h>
 #include <Client/typed_ttf.h>
 #include <Client/Client.h>
 #include <Renderer/Renderer.h>
@@ -72,6 +73,7 @@ void run_client(Renderer& renderer, const std::string& hostname) {
 int SDL_main(int argc, char* argv[]) {
 	try {
 		Window window;
+		Audio audio(window);
 		Renderer renderer(window);
 		renderer.load_font(0, typed_ttf, typed_ttf_length);
 		while (true) {

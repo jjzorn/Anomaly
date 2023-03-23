@@ -6,7 +6,7 @@
 #include <Renderer/Window.h>
 
 Window::Window() {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		error(SDL_GetError());
 	}
 #ifdef ANOMALY_MOBILE

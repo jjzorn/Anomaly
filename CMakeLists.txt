@@ -17,6 +17,7 @@ add_subdirectory("3rdParty/stb")
 add_subdirectory("3rdParty/lua")
 
 set(CLIENT_SOURCE_FILES
+	"Source/Audio/Audio.cpp"
 	"Source/Client/Client.cpp"
 	"Source/Client/Main.cpp"
 	"Source/Renderer/Input.cpp"
