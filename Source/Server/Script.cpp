@@ -72,6 +72,7 @@ Script::~Script() {
 }
 
 void Script::reload() {
+	luaL_dostring(L, "package.path = 'Content/Scripts/?.lua'");
 	register_callback("reload", lua_reload);
 	register_callback("start_text_input", start_text_input);
 	register_callback("stop_text_input", stop_text_input);
