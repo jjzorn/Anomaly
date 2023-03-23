@@ -254,10 +254,6 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		int32_t key = read32(data);
 		bool down = data[4];
 		data += 5;
-		if (key == 1073741886 && down) {
-			script.reload();
-			content->reload(*this);
-		}
 		script.on_key_event(client, key, down);
 	}
 	length = read32(data);

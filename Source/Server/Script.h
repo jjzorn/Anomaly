@@ -28,12 +28,17 @@ public:
 	void on_finger_event(uint16_t client, float x, float y, uint8_t finger, uint8_t type);
 	void on_mouse_button(uint16_t client, float x, float y, uint8_t button, bool down);
 	void on_mouse_motion(uint16_t client, float x, float y);
+	
+	bool check_reload();
 
 private:
 	Server* server;
 	lua_State* L;
 
+	bool should_reload = false;
+
 	void on_reload();
+	static int lua_reload(lua_State* L);
 
 	static int start_text_input(lua_State* L);
 	static int stop_text_input(lua_State* L);
