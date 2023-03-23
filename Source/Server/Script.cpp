@@ -72,7 +72,6 @@ Script::~Script() {
 }
 
 void Script::reload() {
-	register_callback("reload", lua_reload);
 	register_callback("start_text_input", start_text_input);
 	register_callback("stop_text_input", stop_text_input);
 	register_callback("get_composition", get_composition);
@@ -214,23 +213,6 @@ void Script::on_mouse_motion(uint16_t client, float x, float y) {
 		}
 	}
 	lua_settop(L, 0);
-}
-
-bool Script::check_reload() {
-	if (should_reload) {
-		should_reload = false;
-		reload();
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-int Script::lua_reload(lua_State* L) {
-	Script* script = reinterpret_cast<Script*>(lua_touserdata(L, lua_upvalueindex(1)));
-	script->should_reload = true;
-	return 0;
 }
 
 int Script::start_text_input(lua_State* L) {

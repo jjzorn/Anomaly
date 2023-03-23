@@ -26,9 +26,6 @@ int main(int argc, char* argv[]) {
 		if (duration >= MINIMUM_FRAME_TIME) {
 			last_update = now;
 			server.update(script, duration);
-			if (script.check_reload()) {
-				content.reload(server);
-			}
 		}
 	}
 
