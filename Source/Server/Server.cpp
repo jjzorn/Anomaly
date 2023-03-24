@@ -276,6 +276,9 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 		uint8_t type = data[9];
 		data += 10;
 		if (clients[client].has_touch) {
+			if (button == 3 && type == static_cast<uint8_t>(InputEventType::DOWN)) {
+				script.request_reload();
+			}
 			script.on_finger_event(client, x, y, button, type);
 		}
 		else {
