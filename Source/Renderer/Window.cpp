@@ -124,6 +124,10 @@ bool Window::update() {
 				-event.button.y / height() * 2.0f + 1.0f, 0,
 				static_cast<uint8_t>(InputEventType::MOTION) });
 			break;
+		case SDL_MOUSEWHEEL:
+			input.wheel_x += event.wheel.preciseX;
+			input.wheel_y += event.wheel.preciseY;
+			break;
 #endif
 		case SDL_TEXTINPUT:
 			input.composition += event.text.text;

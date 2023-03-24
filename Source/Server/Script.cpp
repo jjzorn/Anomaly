@@ -218,6 +218,18 @@ void Script::on_mouse_motion(uint16_t client, float x, float y) {
 	lua_settop(L, 0);
 }
 
+void Script::on_mouse_wheel(uint16_t client, float x, float y) {
+	if (get_function("on_mouse_wheel")) {
+		lua_pushinteger(L, client);
+		lua_pushnumber(L, x);
+		lua_pushnumber(L, y);
+		if (lua_pcall(L, 3, 0, 0) != LUA_OK) {
+			std::cerr << "ERROR: Could not call on_mouse_wheel: " << lua_tostring(L, -1) << '\n';
+		}
+	}
+	lua_settop(L, 0);
+}
+
 void Script::request_reload() {
 	should_reload = true;
 }

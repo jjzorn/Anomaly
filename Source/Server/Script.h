@@ -28,6 +28,7 @@ public:
 	void on_finger_event(uint16_t client, float x, float y, uint8_t finger, uint8_t type);
 	void on_mouse_button(uint16_t client, float x, float y, uint8_t button, bool down);
 	void on_mouse_motion(uint16_t client, float x, float y);
+	void on_mouse_wheel(uint16_t client, float x, float y);
 	
 	void request_reload();
 	bool check_reload();

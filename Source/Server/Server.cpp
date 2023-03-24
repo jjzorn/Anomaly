@@ -288,4 +288,9 @@ void Server::client_input(uint16_t client, ENetPacket* input_packet, Script& scr
 			}
 		}
 	}
+	float wheel_x = read_float(data);
+	float wheel_y = read_float(data + 4);
+	if (wheel_x != 0.0f || wheel_y != 0.0f) {
+		script.on_mouse_wheel(client, wheel_x, wheel_y);
+	}
 }

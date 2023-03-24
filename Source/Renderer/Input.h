@@ -22,6 +22,8 @@ struct Input {
 	std::vector<KeyEvent> key_events;
 	std::string composition;
 	std::vector<MouseEvent> mouse_events;
+	float wheel_x = 0.0f;
+	float wheel_y = 0.0f;
 
 	bool changed_composition = false;
 
