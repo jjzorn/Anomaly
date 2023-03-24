@@ -323,9 +323,9 @@ int Script::draw_text(lua_State* L) {
 	float x = luaL_checknumber(L, 3);
 	float y = luaL_checknumber(L, 4);
 	float scale = luaL_checknumber(L, 5);
-	uint8_t r = luaL_checkinteger(L, 6);
-	uint8_t g = luaL_checkinteger(L, 7);
-	uint8_t b = luaL_checkinteger(L, 8);
+	uint8_t r = luaL_checknumber(L, 6);
+	uint8_t g = luaL_checknumber(L, 7);
+	uint8_t b = luaL_checknumber(L, 8);
 	std::string text = luaL_checkstring(L, 9);
 	int result = script->server->draw_text(client, path, x, y, scale, r, g, b, text);
 	if (result == 1) {
