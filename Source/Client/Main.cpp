@@ -82,6 +82,7 @@ int SDL_main(int argc, char* argv[]) {
 		while (true) {
 			std::string hostname = start_menu(renderer);
 			run_client(audio, renderer, hostname);
+			audio.stop_all();
 		}
 	} catch (...) {}
 	return 0;

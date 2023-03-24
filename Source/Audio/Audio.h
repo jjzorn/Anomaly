@@ -22,6 +22,8 @@ public:
 	void load_sound(uint32_t id, const uint8_t* data, uint32_t length);
 	void perform_command(uint32_t id, uint16_t channel, uint8_t volume, AudioCommand::Type type);
 
+	void stop_all();
+
 private:
 	struct Sound {
 		int16_t* samples;

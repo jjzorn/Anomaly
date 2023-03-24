@@ -92,6 +92,15 @@ void Audio::perform_command(uint32_t id, uint16_t channel, uint8_t volume, Audio
 	SDL_UnlockAudioDevice(device);
 }
 
+void Audio::stop_all() {
+	SDL_LockAudioDevice(device);
+	for (uint32_t i = 0; i < ANOMALY_AUDIO_CHANNELS; ++i) {
+		channels[i].sound_id = 0;
+		channels[i].index = 0;
+	}
+	SDL_UnlockAudioDevice(device);
+}
+
 void Audio::audio_callback_helper(void* userdata, uint8_t* stream, int length) {
 	Audio* audio = reinterpret_cast<Audio*>(userdata);
 	int16_t* samples = reinterpret_cast<int16_t*>(stream);
