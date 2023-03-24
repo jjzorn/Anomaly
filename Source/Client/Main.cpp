@@ -31,7 +31,7 @@ std::string start_menu(Renderer& renderer) {
 				}
 			}
 			for (const KeyEvent& e : window.input.key_events) {
-				if (e.key == SDLK_RETURN && e.down == true) {
+				if (e.key == SDLK_RETURN && e.down) {
 					window.stop_text_input();
 					window.input.mouse_events.clear();
 					window.input.key_events.clear();
@@ -39,6 +39,9 @@ std::string start_menu(Renderer& renderer) {
 					renderer.draw_string(0, 0.0f, 0.0f, 0.2f, 255, 255, 255, "Connecting...");
 					window.present();
 					return hostname;
+				}
+				else if ((e.key == SDLK_ESCAPE || e.key == SDLK_AC_BACK) && e.down) {
+					throw std::exception();
 				}
 			}
 			hostname = window.input.composition;

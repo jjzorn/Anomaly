@@ -151,7 +151,9 @@ ENetPacket* Window::create_input_packet() {
 }
 
 void Window::start_text_input() {
-	SDL_StartTextInput();
+	if (!SDL_IsTextInputActive()) {
+		SDL_StartTextInput();
+	}
 }
 
 void Window::stop_text_input() {

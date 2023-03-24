@@ -12,6 +12,16 @@ std::unordered_map<int32_t, const char*> keycodes = {
 	{ 13, "Return" },
 	{ 27, "Escape" },
 	{ 32, "Space" },
+	{ 48, "0" },
+	{ 49, "1" },
+	{ 50, "2" },
+	{ 51, "3" },
+	{ 52, "4" },
+	{ 53, "5" },
+	{ 54, "6" },
+	{ 55, "7" },
+	{ 56, "8" },
+	{ 57, "9" },
 	{ 97, "A" },
 	{ 98, "B" },
 	{ 99, "C" },
@@ -349,7 +359,7 @@ int Script::play_sound(lua_State* L) {
 		uint16_t channel = luaL_checkinteger(L, 4);
 		if (channel >= ANOMALY_AUDIO_CHANNELS) {
 			return luaL_error(L, "Invalid channel, must be between 0 and %d",
-				static_cast<int>(ANOMALY_AUDIO_CHANNELS) - 1);
+				static_cast<int>(ANOMALY_AUDIO_CHANNELS) / 2 - 1);
 		}
 		result = script->server->play(client, path, channel, volume);
 	}
@@ -371,7 +381,7 @@ int Script::stop_sound(lua_State* L) {
 	uint16_t channel = luaL_checkinteger(L, 2);
 	if (channel >= ANOMALY_AUDIO_CHANNELS) {
 		return luaL_error(L, "Invalid channel, must be between 0 and %d",
-			static_cast<int>(ANOMALY_AUDIO_CHANNELS) - 1);
+			static_cast<int>(ANOMALY_AUDIO_CHANNELS) / 2 - 1);
 	}
 	if (!script->server->stop(client, channel)) {
 		return luaL_error(L, "Client %d is not online", client);
