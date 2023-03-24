@@ -19,11 +19,14 @@ public:
 	uint32_t get_font_id(const std::string& path) const;
 	uint32_t get_sound_id(const std::string& path) const;
 
+	float get_image_aspect_ratio(const std::string& path) const;
+
 private:
 	struct Image {
 		std::vector<uint8_t> data;
 		std::filesystem::file_time_type last_write;
 		uint32_t id;
+		float aspect_ratio;
 	};
 
 	struct Font {

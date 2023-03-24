@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <stb_image.h>
+
 #include <Server/ContentManager.h>
 
 static void read_file(const std::filesystem::path& path, std::vector<uint8_t>& data) {
@@ -37,6 +39,10 @@ void ContentManager::reload(Server& server) {
 				}
 				image->last_write = entry.last_write_time();
 				read_file(path, image->data);
+				int width, height;
+				stbi_info_from_memory(image->data.data(), image->data.size(), &width, &height,
+					nullptr);
+				image->aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
 				server.update_content(ContentType::IMAGE, image->id, image->data);
 			}
 		}
@@ -126,4 +132,13 @@ uint32_t ContentManager::get_sound_id(const std::string& path) const {
 		return it->second.id;
 	}
 	return 0;
+}
+
+float ContentManager::get_image_aspect_ratio(const std::string& path) const {
+	std::filesystem::path p = std::filesystem::weakly_canonical("Content/Images/" + path);
+	auto it = images.find(p);
+	if (it != images.end()) {
+		return it->second.aspect_ratio;
+	}
+	return 0.0f;
 }

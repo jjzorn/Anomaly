@@ -30,6 +30,8 @@ public:
 	bool stop_text_input(uint16_t client);
 	const char* get_composition(uint16_t client);
 
+	float get_sprite_width(const std::string& path);
+
 	int draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale);
 	int draw_text(uint16_t client, const std::string& path, float x, float y, float scale,
 		uint8_t r, uint8_t g, uint8_t b, std::string text);

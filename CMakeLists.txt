@@ -49,7 +49,7 @@ else()
 	target_link_libraries("Anomaly" "enet_static" "glad" "SDL2main" "SDL2-static" "stb")
 	target_include_directories("Anomaly" PRIVATE "Source")
 
-	target_link_libraries("AnomalyServer" "enet_static" "lua")
+	target_link_libraries("AnomalyServer" "enet_static" "lua" "stb")
 	target_include_directories("AnomalyServer" PRIVATE "Source")
 	target_compile_features("AnomalyServer" PRIVATE cxx_std_17)
 endif()

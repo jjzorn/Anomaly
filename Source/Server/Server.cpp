@@ -102,6 +102,10 @@ const char* Server::get_composition(uint16_t client) {
 	return clients[client].composition.c_str();
 }
 
+float Server::get_sprite_width(const std::string& path) {
+	return content->get_image_aspect_ratio(path);
+}
+
 int Server::draw_sprite(uint16_t client, const std::string& path, float x, float y, float scale) {
 	if (client >= clients.size() || !clients[client].connected) {
 		return 1;
